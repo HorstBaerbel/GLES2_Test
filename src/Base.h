@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <exception>
 
@@ -20,8 +21,12 @@ public:
 
 //------------------------------------------------------------------------------------------------------
 
+class ParameterBase : public IChangeableObject
+{
+};
+
 template <typename TYPE>
-class Parameter : public IChangeableObject
+class Parameter : public ParameterBase
 {
 	TYPE value;
 
@@ -31,16 +36,52 @@ public:
 
 	const Parameter<TYPE> & operator=(const Parameter<TYPE> & newValue);
 	const Parameter<TYPE> & operator=(const TYPE & newValue);
+	operator TYPE() { return value; }
 };
+
+template <typename TYPE>
+Parameter<TYPE>::Parameter(const TYPE & newValue)
+	: value(newValue)
+{
+}
+
+template <typename TYPE>
+Parameter<TYPE>::Parameter(const Parameter<TYPE> & newValue)
+{
+	*this = newValue;
+}
+
+template <typename TYPE>
+const Parameter<TYPE> & Parameter<TYPE>::operator=(const Parameter<TYPE> & newValue)
+{
+	value = newValue.value;
+	return this;
+}
+
+template <typename TYPE>
+const Parameter<TYPE> & Parameter<TYPE>::operator=(const TYPE & newValue)
+{
+	value = newValue;
+	return this;
+}
 
 //------------------------------------------------------------------------------------------------------
 
 class IRenderableObject
 {
 public:
-	virtual void prepareRender() = 0;
-	virtual void render() = 0;
-	virtual void finishRender() = 0;
+	virtual void prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual void render(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual void finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+};
+
+//------------------------------------------------------------------------------------------------------
+
+class IBindableObject
+{
+public:
+	virtual void bind(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual void unbind(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------

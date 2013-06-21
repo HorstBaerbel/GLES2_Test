@@ -7,7 +7,7 @@
 
 //------------------------------------------------------------------------------------------------------
 
-class VertexAttributeBase : public IChangeableObject, public IGLObject
+class VertexAttributeBase : public IBindableObject, public IChangeableObject, public IGLObject
 {
 public:
 	enum AttributeRole {VERTEX0, VERTEX1, TEXCOORD0, TEXCOORD1, TEXCOORD2, TEXCOORD3, NORMAL0, NORMAL1, COLOR0, COLOR1, DATA0, DATA1, INDEX};
@@ -38,9 +38,6 @@ public:
 
 	virtual const void * getRawData() const = 0;
 	virtual size_t getRawSize() const = 0;
-
-	virtual void bind(GLuint index) = 0;
-	virtual void unbind(GLuint index) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------
@@ -51,9 +48,9 @@ public:
 	struct AttributeInfo
 	{
 		bool enabled;
-		GLuint index;
+		std::shared_ptr<Parameter<GLuint>> index;
 
-		AttributeInfo() : enabled(false), index(0) {};
+		AttributeInfo() : enabled(false), index(nullptr) {};
 	};
 
 private:
@@ -64,9 +61,9 @@ public:
 	AttributeInfo getAttributeInfo(const std::string & roleName) const;
 
 	void enableAttribute(VertexAttributeBase::AttributeRole role, bool enable);
-	void enableAttribute(const std::string & roleName, GLuint index);
-	void setAttributeIndex(VertexAttributeBase::AttributeRole role, GLuint index, bool enable = true);
-	void setAttributeIndex(const std::string & roleName, GLuint index, bool enable = true);
+	void enableAttribute(const std::string & roleName, std::shared_ptr<Parameter<GLuint>> & index);
+	void setAttributeIndex(VertexAttributeBase::AttributeRole role, std::shared_ptr<Parameter<GLuint>> & index, bool enable = true);
+	void setAttributeIndex(const std::string & roleName, std::shared_ptr<Parameter<GLuint>> & index, bool enable = true);
 };
 
 //------------------------------------------------------------------------------------------------------

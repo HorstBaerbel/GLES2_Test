@@ -18,8 +18,8 @@ std::shared_ptr<WindowBase> window;
 std::shared_ptr<ContextBase> context;
 
 GLuint triangleShader;
-GLint triangleVertexAttribute;
-GLint triangleColorAttribute;
+std::shared_ptr<Parameter<GLuint>> triangleVertexAttribute;
+std::shared_ptr<Parameter<GLuint>> triangleColorAttribute;
 const char * vertexCode =
     "attribute vec4 vertex;\n"
 	"attribute vec4 color;\n"
@@ -126,8 +126,8 @@ bool setup()
 	triangleShader = context->createShader(vertexCode, fragmentCode, errors);
 	if (triangleShader > 0) {
 		//get locations of vertex attributes
-		triangleVertexAttribute = context->glGetAttribLocation(triangleShader, "vertex");
-		triangleColorAttribute = context->glGetAttribLocation(triangleShader, "color");
+		triangleVertexAttribute = std::make_shared<Parameter<GLuint>>((GLuint)context->glGetAttribLocation(triangleShader, "vertex"));
+		triangleColorAttribute = std::make_shared<Parameter<GLuint>>((GLuint)context->glGetAttribLocation(triangleShader, "color"));
 	}
 	else {
 		std::cout << "Failed to create the necessary shader. Exiting." << std::endl;

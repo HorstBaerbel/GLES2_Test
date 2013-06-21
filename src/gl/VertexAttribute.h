@@ -12,6 +12,7 @@ class VertexAttribute : public VertexAttributeBase
 {
 	std::vector<TYPE> data;
 	size_t oldDataSize;
+	GLuint boundIndex;
 	GLuint glBufferId;
 
 public:
@@ -36,8 +37,8 @@ public:
 	Bind attribute buffer to index and return following index.
 	\param[in] index The index this vertex attribute should use.
 	*/
-	void bind(GLuint index);
-	void unbind(GLuint index);
+	void bind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	void unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
 
 	~VertexAttribute();
 };
@@ -46,7 +47,7 @@ public:
 
 template <typename TYPE>
 inline VertexAttribute<TYPE>::VertexAttribute(std::shared_ptr<ContextBase> & context, VertexAttributeBase::AttributeRole role,GLenum usagePattern)
-	: VertexAttributeBase(context, role, usagePattern), glBufferId(-1), oldDataSize(0)
+	: VertexAttributeBase(context, role, usagePattern), oldDataSize(0), boundIndex(0), glBufferId(-1)
 {
 	elementTypeInfo = getElementTypeInfo();
 	glContext->glGenBuffers(1, &glBufferId);
@@ -119,8 +120,9 @@ inline size_t VertexAttribute<TYPE>::getRawSize() const
 }
 
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::bind(GLuint index)
+inline void VertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter)
 {
+	//enable VBOs
 	glEnableClientState(GL_VERTEX_ARRAY);
 	//check if this is an index array to an actual vertex attribute
 	if (INDEX == attributeRole) {
@@ -143,8 +145,25 @@ inline void VertexAttribute<TYPE>::bind(GLuint index)
 		}
 	}
 	else {
+		//clear bound index
+		boundIndex = 0;
+		//try reading new attribute index parameter
+		if (parameter) {
+			//try to cast to GLuint
+			std::shared_ptr<Parameter<GLuint>> index = std::dynamic_pointer_cast<Parameter<GLuint>>(parameter);
+			if (index) {
+				//ok. set new index
+				boundIndex = *index;
+			}
+			else {
+				throw VertexAttributeException("VertexAttribute::bind - Parameter must be attribute index passed as Parameter<GLuint>!");
+			}
+		}
+		else {
+			throw VertexAttributeException("VertexAttribute::bind - Parameter cannot be empty!");
+		}
 		//enable this attribute array
-		glContext->glEnableVertexAttribArray(index);
+		glContext->glEnableVertexAttribArray(boundIndex);
 		//bind buffer to it
 		glContext->glBindBuffer(GL_ARRAY_BUFFER, glBufferId);
 		if (changed) {
@@ -164,21 +183,21 @@ inline void VertexAttribute<TYPE>::bind(GLuint index)
 			}
 		}
 		//set up attribute pointer
-		glContext->glVertexAttribPointer(index, elementTypeInfo.nrOfComponents, elementTypeInfo.glType, elementTypeInfo.normalize, 0, nullptr);
+		glContext->glVertexAttribPointer(boundIndex, elementTypeInfo.nrOfComponents, elementTypeInfo.glType, elementTypeInfo.normalize, 0, nullptr);
 		//unbid buffer again. this saves us a call later
 		glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
 
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::unbind(GLuint index)
+inline void VertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if this is an index array to an actual vertex attribute
 	if (INDEX == attributeRole) {
 		glContext->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 	else {
-		glContext->glDisableVertexAttribArray(index);
+		glContext->glDisableVertexAttribArray(boundIndex);
 		//glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }

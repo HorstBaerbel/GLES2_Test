@@ -179,7 +179,7 @@ GLsizei VertexBuffer::getNrOfPrimitivesRendered() const
 	return 0;
 }
 
-void VertexBuffer::prepareRender()
+void VertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if we're actually using vertex array objects
 	if (glContext->glBindVertexArray != nullptr && glArrayId != 0) {
@@ -233,7 +233,7 @@ void VertexBuffer::prepareRender()
 	}
 }
 
-void VertexBuffer::render()
+void VertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 {
 #ifdef USE_OPENGL_DESKTOP
 	//if we're doing tesselation, set the number of vertices per patch
@@ -251,7 +251,7 @@ void VertexBuffer::render()
 	}
 }
 
-void VertexBuffer::finishRender()
+void VertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if we're actually using vertex array objects
 	if (glContext->glBindVertexArray != nullptr && glArrayId != 0) {

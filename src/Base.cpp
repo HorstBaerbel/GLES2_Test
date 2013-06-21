@@ -23,35 +23,6 @@ IChangeableObject::~IChangeableObject()
 
 //------------------------------------------------------------------------------------------------------
 
-template <typename TYPE>
-Parameter<TYPE>::Parameter(const TYPE & newValue)
-	: IChangeableObject()
-{
-}
-
-template <typename TYPE>
-Parameter<TYPE>::Parameter(const Parameter<TYPE> & newValue)
-	: IChangeableObject()
-{
-	*this = newValue;
-}
-
-template <typename TYPE>
-const Parameter<TYPE> & Parameter<TYPE>::operator=(const Parameter<TYPE> & newValue)
-{
-	value = newValue.value;
-	return this;
-}
-
-template <typename TYPE>
-const Parameter<TYPE> & Parameter<TYPE>::operator=(const TYPE & newValue)
-{
-	value = newValue;
-	return this;
-}
-
-//------------------------------------------------------------------------------------------------------
-
 InternalException::InternalException(const char * errorString) throw()
 	: exception(), error(errorString)
 {

@@ -59,13 +59,13 @@ VertexAttributeMap::AttributeInfo VertexAttributeMap::getAttributeInfo(const std
 	return AttributeInfo();
 }
 
-void VertexAttributeMap::setAttributeIndex(VertexAttributeBase::AttributeRole role, GLuint index, bool enable)
+void VertexAttributeMap::setAttributeIndex(VertexAttributeBase::AttributeRole role, std::shared_ptr<Parameter<GLuint>> & index, bool enable)
 {
 	//check if attribute with same role already exists
 	std::map<VertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.cbegin();
 	while (ait != attributeMap.cend()) {
 		if (ait->first != role && ait->second.index == index) {
-			throw VertexAttributeException("VertexAttribMap::setAttributeIndex - Attribute with role " + VertexAttributeBase::AttributeName[role] + " is already at index " + std::to_string((_ULonglong)index) + "!");
+			throw VertexAttributeException("VertexAttribMap::setAttributeIndex - Attribute with role " + VertexAttributeBase::AttributeName[role] + " is already at index " + std::to_string((_ULonglong)*index) + "!");
 		}
 		++ait;
 	}
@@ -74,7 +74,7 @@ void VertexAttributeMap::setAttributeIndex(VertexAttributeBase::AttributeRole ro
 	changed = true;
 }
 
-void VertexAttributeMap::setAttributeIndex(const std::string & roleName, GLuint index, bool enable)
+void VertexAttributeMap::setAttributeIndex(const std::string & roleName, std::shared_ptr<Parameter<GLuint>> & index, bool enable)
 {
 	//try to find role with specified name
 	std::map<VertexAttributeBase::AttributeRole, AttributeInfo>::iterator ait = attributeMap.begin();
