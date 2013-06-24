@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../Base.h"
-#include "ContextBase.h"
 #include "GLIncludes.h"
+
+class ContextBase;
 
 class IGLObject
 {

@@ -14,7 +14,7 @@
 	#endif
 #endif
 
-#include "GLIncludes.h"
+#include "GLBase.h"
 
 
 //OpenGL context base class

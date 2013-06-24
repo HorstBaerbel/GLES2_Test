@@ -7,7 +7,7 @@
 #endif
 
 #include "Timing.h"
-#include "gl/VertexBuffer.h"
+#include "gl/GLVertexBuffer.h"
 
 
 bool showFPS = false;
@@ -40,28 +40,29 @@ float triangleVertices[] = {-1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0
 float triangleColors[] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 uint16_t triangleIndices[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
-std::shared_ptr<VertexAttribute<vec3>> vertices;
-std::shared_ptr<VertexAttribute<vec3>> colors;
-std::shared_ptr<VertexAttribute<uint16_t>> indices;
-std::shared_ptr<VertexAttributeMap> triangleAttributeMap;
-std::shared_ptr<VertexBuffer> vbo;
+std::shared_ptr<GLVertexAttribute<vec3>> vertices;
+std::shared_ptr<GLVertexAttribute<vec3>> colors;
+std::shared_ptr<GLVertexAttribute<uint16_t>> indices;
+std::shared_ptr<GLVertexAttributeMap> triangleAttributeMap;
+std::shared_ptr<GLVertexBuffer> vbo;
 
 
 void createTriangle()
 {
-	vertices = std::make_shared<VertexAttribute<vec3>>(context, VertexAttributeBase::VERTEX0);
+	context->makeCurrent();
+	vertices = std::make_shared<GLVertexAttribute<vec3>>(context, GLVertexAttributeBase::VERTEX0);
 	vertices->addElements((void *)triangleVertices, 3);
-	colors = std::make_shared<VertexAttribute<vec3>>(context, VertexAttributeBase::COLOR0);
+	colors = std::make_shared<GLVertexAttribute<vec3>>(context, GLVertexAttributeBase::COLOR0);
 	colors->addElements((void *)triangleColors, 3);
-	indices = std::make_shared<VertexAttribute<uint16_t>>(context, VertexAttributeBase::INDEX);
+	indices = std::make_shared<GLVertexAttribute<uint16_t>>(context, GLVertexAttributeBase::INDEX);
 	indices->addElements(triangleIndices, 9);
-	vbo = std::make_shared<VertexBuffer>(context);
+	vbo = std::make_shared<GLVertexBuffer>(context);
 	vbo->addAttribute(vertices);
 	vbo->addAttribute(colors);
 	//vbo->setIndices(indices);
-	triangleAttributeMap = std::make_shared<VertexAttributeMap>();
-	triangleAttributeMap->setAttributeIndex(VertexAttributeBase::VERTEX0, triangleVertexAttribute);
-	triangleAttributeMap->setAttributeIndex(VertexAttributeBase::COLOR0, triangleColorAttribute);
+	triangleAttributeMap = std::make_shared<GLVertexAttributeMap>();
+	triangleAttributeMap->setAttributeIndex(GLVertexAttributeBase::VERTEX0, triangleVertexAttribute);
+	triangleAttributeMap->setAttributeIndex(GLVertexAttributeBase::COLOR0, triangleColorAttribute);
 	vbo->setAttributeMap(triangleAttributeMap);
 }
 

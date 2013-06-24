@@ -1,4 +1,5 @@
 #include "GLBase.h"
+#include "ContextBase.h"
 
 
 IGLObject::IGLObject(std::shared_ptr<ContextBase> context)

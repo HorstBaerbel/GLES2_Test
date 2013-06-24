@@ -7,7 +7,7 @@
 
 //------------------------------------------------------------------------------------------------------
 
-class VertexAttributeBase : public IBindableObject, public IChangeableObject, public IGLObject
+class GLVertexAttributeBase : public IBindableObject, public IChangeableObject, public IGLObject
 {
 public:
 	enum AttributeRole {VERTEX0, VERTEX1, TEXCOORD0, TEXCOORD1, TEXCOORD2, TEXCOORD3, NORMAL0, NORMAL1, COLOR0, COLOR1, DATA0, DATA1, INDEX};
@@ -24,7 +24,7 @@ protected:
 	GLenum glUsage;
 	ElementTypeInfo elementTypeInfo;
 
-	VertexAttributeBase(std::shared_ptr<ContextBase> & context, AttributeRole role, GLenum usagePattern = GL_DYNAMIC_DRAW);
+	GLVertexAttributeBase(std::shared_ptr<ContextBase> & context, AttributeRole role, GLenum usagePattern = GL_DYNAMIC_DRAW);
 	virtual const ElementTypeInfo & getElementTypeInfo() const;
 
 public:
@@ -42,7 +42,7 @@ public:
 
 //------------------------------------------------------------------------------------------------------
 
-class VertexAttributeMap : public IChangeableObject
+class GLVertexAttributeMap : public IChangeableObject
 {
 public:
 	struct AttributeInfo
@@ -54,15 +54,15 @@ public:
 	};
 
 private:
-	std::map<VertexAttributeBase::AttributeRole, AttributeInfo> attributeMap;
+	std::map<GLVertexAttributeBase::AttributeRole, AttributeInfo> attributeMap;
 
 public:
-	AttributeInfo getAttributeInfo(VertexAttributeBase::AttributeRole role) const;
+	AttributeInfo getAttributeInfo(GLVertexAttributeBase::AttributeRole role) const;
 	AttributeInfo getAttributeInfo(const std::string & roleName) const;
 
-	void enableAttribute(VertexAttributeBase::AttributeRole role, bool enable);
+	void enableAttribute(GLVertexAttributeBase::AttributeRole role, bool enable);
 	void enableAttribute(const std::string & roleName, const Parameter<GLuint> & index);
-	void setAttributeIndex(VertexAttributeBase::AttributeRole role, const Parameter<GLuint> & index, bool enable = true);
+	void setAttributeIndex(GLVertexAttributeBase::AttributeRole role, const Parameter<GLuint> & index, bool enable = true);
 	void setAttributeIndex(const std::string & roleName, const Parameter<GLuint> & index, bool enable = true);
 
 	bool hasChanged() const;
@@ -70,9 +70,9 @@ public:
 
 //------------------------------------------------------------------------------------------------------
 
-class VertexAttributeException : public GLException
+class GLVertexAttributeException : public GLException
 {
 public:
-	VertexAttributeException(const char * errorString) throw();
-	VertexAttributeException(const std::string & errorString) throw();
+	GLVertexAttributeException(const char * errorString) throw();
+	GLVertexAttributeException(const std::string & errorString) throw();
 };

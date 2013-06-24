@@ -3,12 +3,12 @@
 #include <memory>
 
 #include "../math/Math.h"
-#include "VertexBase.h"
+#include "GLVertexBase.h"
 
 //------------------------------------------------------------------------------------------------------
 
 template <typename TYPE>
-class VertexAttribute : public VertexAttributeBase
+class GLVertexAttribute : public GLVertexAttributeBase
 {
 	std::vector<TYPE> data;
 	size_t oldDataSize;
@@ -16,7 +16,7 @@ class VertexAttribute : public VertexAttributeBase
 	GLuint glBufferId;
 
 public:
-	VertexAttribute(std::shared_ptr<ContextBase> & context, VertexAttributeBase::AttributeRole role, GLenum usagePattern = GL_DYNAMIC_DRAW);
+	GLVertexAttribute(std::shared_ptr<ContextBase> & context, GLVertexAttributeBase::AttributeRole role, GLenum usagePattern = GL_DYNAMIC_DRAW);
 
 	void addElement(const TYPE & element);
 	void addElements(const TYPE * elements, size_t count);
@@ -40,31 +40,32 @@ public:
 	void bind(std::shared_ptr<ParameterBase> parameter = nullptr);
 	void unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
 
-	~VertexAttribute();
+	~GLVertexAttribute();
 };
 
 //------------------------------------------------------------------------------------------------------
 
 template <typename TYPE>
-inline VertexAttribute<TYPE>::VertexAttribute(std::shared_ptr<ContextBase> & context, VertexAttributeBase::AttributeRole role,GLenum usagePattern)
-	: VertexAttributeBase(context, role, usagePattern), oldDataSize(0), boundIndex(0), glBufferId(-1)
+inline GLVertexAttribute<TYPE>::GLVertexAttribute(std::shared_ptr<ContextBase> & context, GLVertexAttributeBase::AttributeRole role,GLenum usagePattern)
+	: GLVertexAttributeBase(context, role, usagePattern), oldDataSize(0), boundIndex(0), glBufferId(-1)
 {
 	elementTypeInfo = getElementTypeInfo();
+	glContext->makeCurrent();
 	glContext->glGenBuffers(1, &glBufferId);
 	if (glBufferId == 0) {
-		throw VertexAttributeException("VertexAttribute() - failed to generate vertex buffer!");
+		throw GLVertexAttributeException("VertexAttribute() - failed to generate vertex buffer!");
 	}
 }
 
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::addElement(const TYPE & element)
+inline void GLVertexAttribute<TYPE>::addElement(const TYPE & element)
 {
 	data.push_back(element);
 	changed = true;
 }
 
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::addElements(const TYPE * elements, size_t count)
+inline void GLVertexAttribute<TYPE>::addElements(const TYPE * elements, size_t count)
 {
 	for (size_t i = 0; i < count; i++) {
 		data.push_back(elements[i]);
@@ -74,7 +75,7 @@ inline void VertexAttribute<TYPE>::addElements(const TYPE * elements, size_t cou
 
 //TODO: This sucks and will probably most break very soon...
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::addElements(const void * rawElements, size_t count)
+inline void GLVertexAttribute<TYPE>::addElements(const void * rawElements, size_t count)
 {
 	const TYPE * elements = (const TYPE *)rawElements;
 	for (size_t i = 0; i < count; i++) {
@@ -84,43 +85,43 @@ inline void VertexAttribute<TYPE>::addElements(const void * rawElements, size_t 
 }
 
 template <typename TYPE>
-inline size_t VertexAttribute<TYPE>::getElementSize() const
+inline size_t GLVertexAttribute<TYPE>::getElementSize() const
 {
 	return sizeof(TYPE);
 }
 
 template <typename TYPE>
-inline size_t VertexAttribute<TYPE>::getElementCount() const
+inline size_t GLVertexAttribute<TYPE>::getElementCount() const
 {
 	return data.size();
 }
 
 template <typename TYPE>
-size_t VertexAttribute<TYPE>::getElementNrOfComponents() const
+size_t GLVertexAttribute<TYPE>::getElementNrOfComponents() const
 {
 	return elementTypeInfo.nrOfComponents;
 }
 
 template <typename TYPE>
-GLenum VertexAttribute<TYPE>::getElementGLType() const
+GLenum GLVertexAttribute<TYPE>::getElementGLType() const
 {
 	return elementTypeInfo.glType;
 }
 
 template <typename TYPE>
-inline const void * VertexAttribute<TYPE>::getRawData() const
+inline const void * GLVertexAttribute<TYPE>::getRawData() const
 {
 	return data.data();
 }
 
 template <typename TYPE>
-inline size_t VertexAttribute<TYPE>::getRawSize() const
+inline size_t GLVertexAttribute<TYPE>::getRawSize() const
 {
 	return data.size() * sizeof(TYPE);
 }
 
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter)
+inline void GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter)
 {
 	//enable VBOs
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -156,11 +157,11 @@ inline void VertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter
 				boundIndex = *index;
 			}
 			else {
-				throw VertexAttributeException("VertexAttribute::bind - Parameter must be attribute index passed as Parameter<GLuint>!");
+				throw GLVertexAttributeException("VertexAttribute::bind - Parameter must be attribute index passed as Parameter<GLuint>!");
 			}
 		}
 		else {
-			throw VertexAttributeException("VertexAttribute::bind - Parameter cannot be empty!");
+			throw GLVertexAttributeException("VertexAttribute::bind - Parameter cannot be empty!");
 		}
 		//enable this attribute array
 		glContext->glEnableVertexAttribArray(boundIndex);
@@ -190,7 +191,7 @@ inline void VertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter
 }
 
 template <typename TYPE>
-inline void VertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> parameter)
+inline void GLVertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if this is an index array to an actual vertex attribute
 	if (INDEX == attributeRole) {
@@ -198,12 +199,12 @@ inline void VertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> paramet
 	}
 	else {
 		glContext->glDisableVertexAttribArray(boundIndex);
-		//glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
 
 template <typename TYPE>
-inline VertexAttribute<TYPE>::~VertexAttribute()
+inline GLVertexAttribute<TYPE>::~GLVertexAttribute()
 {
 	glContext->glDeleteBuffers(1, &glBufferId);
 	glBufferId = 0;
@@ -212,66 +213,66 @@ inline VertexAttribute<TYPE>::~VertexAttribute()
 //------------------------------------------------------------------------------------------------------
 //Type traits
 
-template <> inline const VertexAttribute<float>::ElementTypeInfo & VertexAttribute<float>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<float>::ElementTypeInfo & GLVertexAttribute<float>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {1, GL_FALSE, GL_FLOAT}; return info;
 }
 
 #ifdef USE_OPENGL_DESKTOP
-	template <> inline const VertexAttribute<double>::ElementTypeInfo & VertexAttribute<double>::getElementTypeInfo() const
+	template <> inline const GLVertexAttribute<double>::ElementTypeInfo & GLVertexAttribute<double>::getElementTypeInfo() const
 	{
 		static const ElementTypeInfo info = {1, GL_FALSE, GL_DOUBLE}; return info;
 	}
 #endif
 
-template <> inline const VertexAttribute<int8_t>::ElementTypeInfo & VertexAttribute<int8_t>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<int8_t>::ElementTypeInfo & GLVertexAttribute<int8_t>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {1, GL_FALSE, GL_BYTE}; return info;
 }
 
-template <> inline const VertexAttribute<uint8_t>::ElementTypeInfo & VertexAttribute<uint8_t>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<uint8_t>::ElementTypeInfo & GLVertexAttribute<uint8_t>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {1, GL_FALSE, GL_UNSIGNED_BYTE}; return info;
 }
 
-template <> inline const VertexAttribute<int16_t>::ElementTypeInfo & VertexAttribute<int16_t>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<int16_t>::ElementTypeInfo & GLVertexAttribute<int16_t>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {1, GL_FALSE, GL_SHORT}; return info;
 }
 
-template <> inline const VertexAttribute<uint16_t>::ElementTypeInfo & VertexAttribute<uint16_t>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<uint16_t>::ElementTypeInfo & GLVertexAttribute<uint16_t>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {1, GL_FALSE, GL_UNSIGNED_SHORT}; return info;
 }
 
 #ifdef USE_OPENGL_DESKTOP
-	template <> inline const VertexAttribute<int32_t>::ElementTypeInfo & VertexAttribute<int32_t>::getElementTypeInfo() const
+	template <> inline const GLVertexAttribute<int32_t>::ElementTypeInfo & GLVertexAttribute<int32_t>::getElementTypeInfo() const
 	{
 		static const ElementTypeInfo info = {1, GL_FALSE, GL_INT}; return info;
 	}
 
-	template <> inline const VertexAttribute<uint32_t>::ElementTypeInfo & VertexAttribute<uint32_t>::getElementTypeInfo() const
+	template <> inline const GLVertexAttribute<uint32_t>::ElementTypeInfo & GLVertexAttribute<uint32_t>::getElementTypeInfo() const
 	{
 		static const ElementTypeInfo info = {1, GL_FALSE, GL_UNSIGNED_INT}; return info;
 	}
 #else
-	template <> inline const VertexAttribute<int32_t>::ElementTypeInfo & VertexAttribute<int32_t>::getElementTypeInfo() const
+	template <> inline const GLVertexAttribute<int32_t>::ElementTypeInfo & GLVertexAttribute<int32_t>::getElementTypeInfo() const
 	{
 		static const ElementTypeInfo info = {1, GL_FALSE, GL_FIXED}; return info;
 	}
 #endif
 
-template <> inline const VertexAttribute<vec2>::ElementTypeInfo & VertexAttribute<vec2>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<vec2>::ElementTypeInfo & GLVertexAttribute<vec2>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {2, GL_FALSE, GL_FLOAT}; return info;
 }
 
-template <> inline const VertexAttribute<vec3>::ElementTypeInfo & VertexAttribute<vec3>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<vec3>::ElementTypeInfo & GLVertexAttribute<vec3>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {3, GL_FALSE, GL_FLOAT}; return info;
 }
 
-template <> inline const VertexAttribute<vec4>::ElementTypeInfo & VertexAttribute<vec4>::getElementTypeInfo() const
+template <> inline const GLVertexAttribute<vec4>::ElementTypeInfo & GLVertexAttribute<vec4>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {4, GL_FALSE, GL_FLOAT}; return info;
 }

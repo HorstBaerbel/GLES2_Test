@@ -1,8 +1,8 @@
-#include "VertexBuffer.h"
+#include "GLVertexBuffer.h"
 
 //------------------------------------------------------------------------------------------------------
 
-VertexBuffer::VertexBuffer(std::shared_ptr<ContextBase> & context, GLenum renderMode, GLint verticesPerPatch)
+GLVertexBuffer::GLVertexBuffer(std::shared_ptr<ContextBase> & context, GLenum renderMode, GLint verticesPerPatch)
 	: IChangeableObject(), IRenderableObject(), IGLObject(context), nrOfIndices(0), nrOfPrimitives(0), primitiveMode(renderMode), nrOfVerticesPerPatch(verticesPerPatch), glArrayId(0)
 {
 	//if vertex array objects are supported, use them
@@ -10,73 +10,73 @@ VertexBuffer::VertexBuffer(std::shared_ptr<ContextBase> & context, GLenum render
 		glContext->glGenVertexArrays(1, &glArrayId);
 	}
 	if (primitiveMode == GL_PATCHES && glContext->glPatchParameteri == nullptr) {
-		throw VertexBufferException("VertexBuffer - Render mode is GL_PATCHES, but glPatchParameteri is not available!");
+		throw GLVertexBufferException("VertexBuffer - Render mode is GL_PATCHES, but glPatchParameteri is not available!");
 	}
 }
 
-void VertexBuffer::addAttribute(std::shared_ptr<VertexAttributeBase> attribute)
+void GLVertexBuffer::addAttribute(std::shared_ptr<GLVertexAttributeBase> attribute)
 {
 	//check if type is ok
-	if (attribute->getAttributeRole() == VertexAttributeBase::INDEX) {
-		throw VertexBufferException("VertexBuffer::addAttribute - Attribute has role INDEX. Use setIndices!");
+	if (attribute->getAttributeRole() == GLVertexAttributeBase::INDEX) {
+		throw GLVertexBufferException("VertexBuffer::addAttribute - Attribute has role INDEX. Use setIndices!");
 	}
 	//check if attribute with same role already exists
-	std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.find(attribute->getAttributeRole());
+	std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(attribute->getAttributeRole());
 	if (ait != attributes.cend()) {
-		throw VertexBufferException("VertexBuffer::addAttribute - Attribute with role " + std::to_string((_ULonglong)attribute->getAttributeRole()) + " already exists!");
+		throw GLVertexBufferException("VertexBuffer::addAttribute - Attribute with role " + std::to_string((_ULonglong)attribute->getAttributeRole()) + " already exists!");
 	}
 	attributes[attribute->getAttributeRole()] = attribute;
 	//mark VBO as changed
 	changed = true;
 }
 
-void VertexBuffer::setIndices(std::shared_ptr<VertexAttributeBase> newIndices)
+void GLVertexBuffer::setIndices(std::shared_ptr<GLVertexAttributeBase> newIndices)
 {
 	//check if the incides array has the proper role
-	if (newIndices->getAttributeRole() != VertexAttributeBase::INDEX) {
-		throw VertexBufferException("VertexBuffer::setIndices - Attribute doesn't have role INDEX!");
+	if (newIndices->getAttributeRole() != GLVertexAttributeBase::INDEX) {
+		throw GLVertexBufferException("VertexBuffer::setIndices - Attribute doesn't have role INDEX!");
 	}
 	indices = newIndices;
 	//mark VBO as changed
 	changed = true;
 }
 
-GLuint VertexBuffer::getNrOfAttributes() const
+GLuint GLVertexBuffer::getNrOfAttributes() const
 {
 	return attributes.size();
 }
 
-void VertexBuffer::setAttributeMap(std::shared_ptr<VertexAttributeMap> newAttributeMap)
+void GLVertexBuffer::setAttributeMap(std::shared_ptr<GLVertexAttributeMap> newAttributeMap)
 {
 	attributeMap = newAttributeMap;
 	changed = true;
 }
 
-GLenum VertexBuffer::getRenderMode() const
+GLenum GLVertexBuffer::getRenderMode() const
 {
 	return primitiveMode;
 }
 
-void VertexBuffer::setRenderMode(GLenum renderMode)
+void GLVertexBuffer::setRenderMode(GLenum renderMode)
 {
 	primitiveMode = renderMode;
 	//update number of rendered indices and primitives in current render mode
 	nrOfPrimitives = getNrOfPrimitivesRendered();
 }
 
-GLint VertexBuffer::getVerticesPerPatch() const
+GLint GLVertexBuffer::getVerticesPerPatch() const
 {
 	return nrOfVerticesPerPatch;
 }
 
-void VertexBuffer::setVerticesPerPatch(GLint verticesPerPatch)
+void GLVertexBuffer::setVerticesPerPatch(GLint verticesPerPatch)
 {
 	nrOfVerticesPerPatch = verticesPerPatch;
 	//update number of rendered primitives in current render mode
 	nrOfPrimitives = getNrOfPrimitivesRendered();
 }
 
-GLsizei VertexBuffer::getNrOfIndicesRendered() const
+GLsizei GLVertexBuffer::getNrOfIndicesRendered() const
 {
 	if (indices) {
 		//we have an indexed primitive, use indices
@@ -84,25 +84,25 @@ GLsizei VertexBuffer::getNrOfIndicesRendered() const
 	}
 	else {
 		//we have no indices, use vertex count of attribute VERTEX0 or VERTEX1
-		std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.find(VertexAttributeBase::VERTEX0);
-		if (ait != attributes.cend() && attributeMap->getAttributeInfo(VertexAttributeBase::VERTEX0).enabled) {
+		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX0);
+		if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX0).enabled) {
 			return ait->second->getElementCount();
 		}
 		else {
 			//not found, try vertex 1
-			std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.find(VertexAttributeBase::VERTEX1);
-			if (ait != attributes.cend() && attributeMap->getAttributeInfo(VertexAttributeBase::VERTEX1).enabled) {
+			std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX1);
+			if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX1).enabled) {
 				return ait->second->getElementCount();
 			}
 			else {
-				throw VertexBufferException("VertexBuffer::getNrOfIndicesRendered - No attribute with role VERTEX0 or VERTEX1 found or none enabled!");
+				throw GLVertexBufferException("VertexBuffer::getNrOfIndicesRendered - No attribute with role VERTEX0 or VERTEX1 found or none enabled!");
 			}
 		}
 	}
 	return 0;
 }
 
-GLsizei VertexBuffer::getNrOfPrimitivesRendered() const
+GLsizei GLVertexBuffer::getNrOfPrimitivesRendered() const
 {
 	GLsizei count;
 	if (indices) {
@@ -111,18 +111,18 @@ GLsizei VertexBuffer::getNrOfPrimitivesRendered() const
 	}
 	else {
 		//we have no indices, use vertex count of attribute VERTEX0 or VERTEX1
-		std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.find(VertexAttributeBase::VERTEX0);
-		if (ait != attributes.cend() && attributeMap->getAttributeInfo(VertexAttributeBase::VERTEX0).enabled) {
+		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX0);
+		if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX0).enabled) {
 			count = ait->second->getElementCount();
 		}
 		else {
 			//not found, try vertex 1
-			std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.find(VertexAttributeBase::VERTEX1);
-			if (ait != attributes.cend() && attributeMap->getAttributeInfo(VertexAttributeBase::VERTEX1).enabled) {
+			std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX1);
+			if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX1).enabled) {
 				count = ait->second->getElementCount();
 			}
 			else {
-				throw VertexBufferException("VertexBuffer::getNrOfPrimitivesRendered - No attribute with role VERTEX0 or VERTEX1 found or none enabled!");
+				throw GLVertexBufferException("VertexBuffer::getNrOfPrimitivesRendered - No attribute with role VERTEX0 or VERTEX1 found or none enabled!");
 			}
 		}
 	}
@@ -179,7 +179,7 @@ GLsizei VertexBuffer::getNrOfPrimitivesRendered() const
 	return 0;
 }
 
-void VertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
+void GLVertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if we're actually using vertex array objects
 	if (glContext->glBindVertexArray != nullptr && glArrayId != 0) {
@@ -192,7 +192,7 @@ void VertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 	//no change in vertex buffer or initialization, but the VBOs or indices or attribute map may have changed
 	if (!changed) {
 		//check if any of the vertex buffers has changed
-		std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.cbegin();
+		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.cbegin();
 		while (ait != attributes.cend()) {
 			if (ait->second->hasChanged()) {
 				changed = true;
@@ -215,9 +215,9 @@ void VertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 		nrOfIndices = getNrOfIndicesRendered();
 		nrOfPrimitives = getNrOfPrimitivesRendered();
 		//bind all vertex attribute buffers to the correpsonding index in the attribute map
-		std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.cbegin();
+		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.cbegin();
 		while (ait != attributes.cend()) {
-			const VertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(ait->second->getAttributeRole());
+			const GLVertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(ait->second->getAttributeRole());
 			if (attributeInfo.enabled) {
 				ait->second->bind(attributeInfo.index);
 			}
@@ -227,13 +227,13 @@ void VertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 		attributeMap->setChanged(false);
 		//bind the index buffer
 		if (indices) {
-			indices->bind(0);
+			indices->bind();
 		}
 		changed = false;
 	}
 }
 
-void VertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
+void GLVertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 {
 #ifdef USE_OPENGL_DESKTOP
 	//if we're doing tesselation, set the number of vertices per patch
@@ -251,27 +251,27 @@ void VertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 	}
 }
 
-void VertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
+void GLVertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if we're actually using vertex array objects
 	if (glContext->glBindVertexArray != nullptr && glArrayId != 0) {
 		glContext->glBindVertexArray(0);
 	}
 	else {
-		std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>>::const_iterator ait = attributes.cbegin();
+		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.cbegin();
 		while (ait != attributes.cend()) {
-			const VertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(ait->second->getAttributeRole());
+			const GLVertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(ait->second->getAttributeRole());
 			if (attributeInfo.enabled) {
 				ait->second->unbind(attributeInfo.index);
 			}
 		}
 		if (indices) {
-			indices->unbind(0);
+			indices->unbind();
 		}
 	}
 }
 
-VertexBuffer::~VertexBuffer()
+GLVertexBuffer::~GLVertexBuffer()
 {
 	//if vertex array objects are supported, use them
 	if (glContext->glDeleteVertexArrays != nullptr && glArrayId != 0) {
@@ -282,12 +282,12 @@ VertexBuffer::~VertexBuffer()
 
 //------------------------------------------------------------------------------------------------------
 
-VertexBufferException::VertexBufferException(const char * errorString) throw()
+GLVertexBufferException::GLVertexBufferException(const char * errorString) throw()
 	: GLException(errorString)
 {
 }
 
-VertexBufferException::VertexBufferException(const std::string & errorString) throw()
+GLVertexBufferException::GLVertexBufferException(const std::string & errorString) throw()
 	: GLException(errorString)
 {
 }

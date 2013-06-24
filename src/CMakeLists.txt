@@ -103,9 +103,9 @@ set(TARGET_HEADERS
     gl/GLFramebuffer.h
     gl/GLIncludes.h
     gl/GLTexture2D.h
-	gl/VertexAttribute.h
-	gl/VertexBase.h
-    gl/VertexBuffer.h
+	gl/GLVertexAttribute.h
+	gl/GLVertexBase.h
+    gl/GLVertexBuffer.h
     gl/WindowBase.h
 	math/Math.h
 	math/Transform2.h
@@ -120,8 +120,8 @@ set(TARGET_SOURCES
     gl/ContextBase.cpp
     gl/GLFramebuffer.cpp
     gl/GLTexture2D.cpp
-	gl/VertexBase.cpp
-    gl/VertexBuffer.cpp
+	gl/GLVertexBase.cpp
+    gl/GLVertexBuffer.cpp
     gl/WindowBase.cpp
 	math/Math.cpp
 	math/Transform2.cpp

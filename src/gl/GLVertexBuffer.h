@@ -7,15 +7,16 @@
 #include <stdint.h>
 
 #include "GLBase.h"
-#include "VertexAttribute.h"
+#include "ContextBase.h"
+#include "GLVertexAttribute.h"
 
 //------------------------------------------------------------------------------------------------------
 
-class VertexBuffer : public IChangeableObject, public IRenderableObject, public IGLObject
+class GLVertexBuffer : public IChangeableObject, public IRenderableObject, public IGLObject
 {
-	std::map<VertexAttributeBase::AttributeRole, std::shared_ptr<VertexAttributeBase>> attributes;
-	std::shared_ptr<VertexAttributeMap> attributeMap;
-	std::shared_ptr<VertexAttributeBase> indices;
+	std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>> attributes;
+	std::shared_ptr<GLVertexAttributeMap> attributeMap;
+	std::shared_ptr<GLVertexAttributeBase> indices;
 	GLsizei nrOfPrimitives;
 	GLsizei nrOfIndices;
 	GLenum primitiveMode;
@@ -23,12 +24,12 @@ class VertexBuffer : public IChangeableObject, public IRenderableObject, public 
 	GLuint glArrayId;
 
 public:
-	VertexBuffer(std::shared_ptr<ContextBase> & context, GLenum renderMode = GL_TRIANGLES, GLint verticesPerPatch = 0);
+	GLVertexBuffer(std::shared_ptr<ContextBase> & context, GLenum renderMode = GL_TRIANGLES, GLint verticesPerPatch = 0);
 
-	void addAttribute(std::shared_ptr<VertexAttributeBase> attribute);
+	void addAttribute(std::shared_ptr<GLVertexAttributeBase> attribute);
 	GLuint getNrOfAttributes() const;
-	void setAttributeMap(std::shared_ptr<VertexAttributeMap> attribMap);
-	void setIndices(std::shared_ptr<VertexAttributeBase> newIndices);
+	void setAttributeMap(std::shared_ptr<GLVertexAttributeMap> attribMap);
+	void setIndices(std::shared_ptr<GLVertexAttributeBase> newIndices);
 	
 	GLenum getRenderMode() const;
 	void setRenderMode(GLenum renderMode);
@@ -41,14 +42,14 @@ public:
 	void render(std::shared_ptr<ParameterBase> parameter = nullptr);
 	void finishRender(std::shared_ptr<ParameterBase> parameter = nullptr);
 
-	~VertexBuffer();
+	~GLVertexBuffer();
 };
 
 //------------------------------------------------------------------------------------------------------
 
-class VertexBufferException : public GLException
+class GLVertexBufferException : public GLException
 {
 public:
-	VertexBufferException(const char * errorString) throw();
-	VertexBufferException(const std::string & errorString) throw();
+	GLVertexBufferException(const char * errorString) throw();
+	GLVertexBufferException(const std::string & errorString) throw();
 };
