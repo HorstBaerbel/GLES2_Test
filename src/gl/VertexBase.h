@@ -61,9 +61,11 @@ public:
 	AttributeInfo getAttributeInfo(const std::string & roleName) const;
 
 	void enableAttribute(VertexAttributeBase::AttributeRole role, bool enable);
-	void enableAttribute(const std::string & roleName, std::shared_ptr<Parameter<GLuint>> & index);
-	void setAttributeIndex(VertexAttributeBase::AttributeRole role, std::shared_ptr<Parameter<GLuint>> & index, bool enable = true);
-	void setAttributeIndex(const std::string & roleName, std::shared_ptr<Parameter<GLuint>> & index, bool enable = true);
+	void enableAttribute(const std::string & roleName, const Parameter<GLuint> & index);
+	void setAttributeIndex(VertexAttributeBase::AttributeRole role, const Parameter<GLuint> & index, bool enable = true);
+	void setAttributeIndex(const std::string & roleName, const Parameter<GLuint> & index, bool enable = true);
+
+	bool hasChanged() const;
 };
 
 //------------------------------------------------------------------------------------------------------

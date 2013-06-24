@@ -13,7 +13,7 @@ protected:
 	IChangeableObject();
 
 public:
-	bool hasChanged() const;
+	virtual bool hasChanged() const;
 	void setChanged(bool changedValue);
 
 	virtual ~IChangeableObject();
@@ -31,13 +31,23 @@ class Parameter : public ParameterBase
 	TYPE value;
 
 public:
+	Parameter();
 	Parameter(const TYPE & newValue);
 	Parameter(const Parameter<TYPE> & newValue);
 
 	const Parameter<TYPE> & operator=(const Parameter<TYPE> & newValue);
 	const Parameter<TYPE> & operator=(const TYPE & newValue);
-	operator TYPE() { return value; }
+	operator TYPE() const { return value; }
+
+	bool operator==(const Parameter<TYPE> & b);
+	bool operator!=(const Parameter<TYPE> & b);
 };
+
+template <typename TYPE>
+Parameter<TYPE>::Parameter()
+{
+	changed = false;
+}
 
 template <typename TYPE>
 Parameter<TYPE>::Parameter(const TYPE & newValue)
@@ -55,14 +65,28 @@ template <typename TYPE>
 const Parameter<TYPE> & Parameter<TYPE>::operator=(const Parameter<TYPE> & newValue)
 {
 	value = newValue.value;
-	return this;
+	changed = true;
+	return *this;
 }
 
 template <typename TYPE>
 const Parameter<TYPE> & Parameter<TYPE>::operator=(const TYPE & newValue)
 {
 	value = newValue;
-	return this;
+	changed = true;
+	return *this;
+}
+
+template <typename TYPE>
+bool Parameter<TYPE>::operator==(const Parameter<TYPE> & b)
+{
+	return value == b.value;
+}
+
+template <typename TYPE>
+bool Parameter<TYPE>::operator!=(const Parameter<TYPE> & b)
+{
+	return value != b.value;
 }
 
 //------------------------------------------------------------------------------------------------------

@@ -59,28 +59,38 @@ VertexAttributeMap::AttributeInfo VertexAttributeMap::getAttributeInfo(const std
 	return AttributeInfo();
 }
 
-void VertexAttributeMap::setAttributeIndex(VertexAttributeBase::AttributeRole role, std::shared_ptr<Parameter<GLuint>> & index, bool enable)
+void VertexAttributeMap::setAttributeIndex(VertexAttributeBase::AttributeRole role, const Parameter<GLuint> & index, bool enable)
 {
-	//check if attribute with same role already exists
+	//check if attribute with same index, but different role already exists
+	bool roleExists = false;
 	std::map<VertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.cbegin();
 	while (ait != attributeMap.cend()) {
-		if (ait->first != role && ait->second.index == index) {
-			throw VertexAttributeException("VertexAttribMap::setAttributeIndex - Attribute with role " + VertexAttributeBase::AttributeName[role] + " is already at index " + std::to_string((_ULonglong)*index) + "!");
+		if (ait->first != role && *ait->second.index == index) {
+			throw VertexAttributeException("VertexAttribMap::setAttributeIndex - Attribute with role " + VertexAttributeBase::AttributeName[role] + " is already at index " + std::to_string((_ULonglong)index) + "!");
+		}
+		else if (ait->first == role) {
+			roleExists = true;
 		}
 		++ait;
 	}
-	attributeMap[role].index = index;
+	//if the role doesn't exist, create the shared pointer to it
+	if (!roleExists) {
+		attributeMap[role].index = std::make_shared<Parameter<GLuint>>(index);
+	}
+	else {
+		*attributeMap[role].index = index;
+	}
 	attributeMap[role].enabled = enable;
 	changed = true;
 }
 
-void VertexAttributeMap::setAttributeIndex(const std::string & roleName, std::shared_ptr<Parameter<GLuint>> & index, bool enable)
+void VertexAttributeMap::setAttributeIndex(const std::string & roleName, const Parameter<GLuint> & index, bool enable)
 {
 	//try to find role with specified name
 	std::map<VertexAttributeBase::AttributeRole, AttributeInfo>::iterator ait = attributeMap.begin();
 	while (ait != attributeMap.end()) {
 		if (VertexAttributeBase::AttributeName[ait->first] == roleName) {
-			ait->second.index = index;
+			*ait->second.index = index;
 			changed = true;
 			return;
 		}
@@ -90,7 +100,7 @@ void VertexAttributeMap::setAttributeIndex(const std::string & roleName, std::sh
 	ait = attributeMap.begin();
 	while (ait != attributeMap.end()) {
 		if (VertexAttributeBase::AttributeName[ait->first].find(roleName) == 0) {
-			ait->second.index = index;
+			*ait->second.index = index;
 			ait->second.enabled = enable;
 			changed = true;
 			return;
@@ -98,6 +108,20 @@ void VertexAttributeMap::setAttributeIndex(const std::string & roleName, std::sh
 		++ait;
 	}
 	throw VertexAttributeException("VertexAttribMap::setAttributeIndex - No attribute with name " + roleName + " found!");
+}
+
+bool VertexAttributeMap::hasChanged() const
+{
+	if (!changed) {
+		std::map<VertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.cbegin();
+		while (ait != attributeMap.cend()) {
+			if (ait->second.index->hasChanged()) {
+				return true;
+			}
+			++ait;
+		}
+	}
+	return changed;
 }
 
 //------------------------------------------------------------------------------------------------------
