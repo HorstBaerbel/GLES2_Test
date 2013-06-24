@@ -5,6 +5,19 @@
 #include <exception>
 
 
+class INamedObject
+{
+	std::string name;
+
+public:
+	INamedObject(const std::string & newName = "");
+
+	const std::string & getName() const;
+	void setName(const std::string & newName);
+};
+
+//------------------------------------------------------------------------------------------------------
+
 class IChangeableObject
 {
 protected:
@@ -21,7 +34,7 @@ public:
 
 //------------------------------------------------------------------------------------------------------
 
-class ParameterBase : public IChangeableObject
+class ParameterBase : public IChangeableObject, public INamedObject
 {
 };
 

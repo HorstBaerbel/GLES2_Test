@@ -2,8 +2,8 @@
 #include "ContextBase.h"
 
 
-IGLObject::IGLObject(std::shared_ptr<ContextBase> context)
-	: glContext(context), valid(false)
+IGLObject::IGLObject(std::shared_ptr<ContextBase> context, const std::string & name)
+	: INamedObject(name), glContext(context), valid(false)
 {
 }
 

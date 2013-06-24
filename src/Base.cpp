@@ -1,6 +1,23 @@
 #include "Base.h"
 
 
+INamedObject::INamedObject(const std::string & newName)
+	: name(newName)
+{
+}
+
+const std::string & INamedObject::getName() const
+{
+	return name;
+}
+
+void INamedObject::setName(const std::string & newName)
+{
+	name = newName;
+}
+
+//------------------------------------------------------------------------------------------------------
+
 IChangeableObject::IChangeableObject()
 	: changed(true)
 {
