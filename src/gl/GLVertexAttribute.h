@@ -37,8 +37,8 @@ public:
 	Bind attribute buffer to index and return following index.
 	\param[in] index The index this vertex attribute should use.
 	*/
-	void bind(std::shared_ptr<ParameterBase> parameter = nullptr);
-	void unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
 
 	~GLVertexAttribute();
 };
@@ -55,6 +55,7 @@ inline GLVertexAttribute<TYPE>::GLVertexAttribute(std::shared_ptr<ContextBase> &
 	if (glBufferId == 0) {
 		throw GLVertexAttributeException("VertexAttribute() - failed to generate vertex buffer!");
 	}
+	valid = true;
 }
 
 template <typename TYPE>
@@ -121,7 +122,7 @@ inline size_t GLVertexAttribute<TYPE>::getRawSize() const
 }
 
 template <typename TYPE>
-inline void GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter)
+inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter)
 {
 	//enable VBOs
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -188,10 +189,11 @@ inline void GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 		//unbid buffer again. this saves us a call later
 		glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+	return true;
 }
 
 template <typename TYPE>
-inline void GLVertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> parameter)
+inline bool GLVertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if this is an index array to an actual vertex attribute
 	if (INDEX == attributeRole) {
@@ -201,6 +203,7 @@ inline void GLVertexAttribute<TYPE>::unbind(std::shared_ptr<ParameterBase> param
 		glContext->glDisableVertexAttribArray(boundIndex);
 		glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+	return true;
 }
 
 template <typename TYPE>

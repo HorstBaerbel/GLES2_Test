@@ -3,9 +3,8 @@
 #include "ContextBase.h"
 #include "GLTexture2D.h"
 
-class GLFramebuffer
+class GLFramebuffer : public IBindableObject, public IChangeableObject, public IGLObject
 {
-	std::shared_ptr<ContextBase> context;
 	GLuint glId;
 
 	struct Attachment {
@@ -36,15 +35,24 @@ public:
 	GLsizei getWidth() const;
 	GLsizei getHeight() const;
 	GLuint getId() const;
-	bool isValid() const;
 
 	bool blitTo(std::shared_ptr<GLFramebuffer> & to, const GLbitfield mask = GL_COLOR_BUFFER_BIT, const GLenum filter = GL_LINEAR);
 	bool blitToScreen(const int width, const int height, const GLbitfield mask = GL_COLOR_BUFFER_BIT, const GLenum filter = GL_LINEAR);
     bool blitFromScreen(const int width, const int height, const GLbitfield mask = GL_COLOR_BUFFER_BIT, const GLenum filter = GL_LINEAR);
 
 	bool discard() const;
-	bool bind() const;
-	bool unbind() const;
+
+	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
 
 	~GLFramebuffer();
+};
+
+//------------------------------------------------------------------------------------------------------
+
+class GLFrameBufferException : public GLException
+{
+public:
+	GLFrameBufferException(const char * errorString) throw();
+	GLFrameBufferException(const std::string & errorString) throw();
 };

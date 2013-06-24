@@ -26,6 +26,10 @@ void GLVertexBuffer::addAttribute(std::shared_ptr<GLVertexAttributeBase> attribu
 		throw GLVertexBufferException("VertexBuffer::addAttribute - Attribute with role " + std::to_string((_ULonglong)attribute->getAttributeRole()) + " already exists!");
 	}
 	attributes[attribute->getAttributeRole()] = attribute;
+	//mark VBO as valid once we have some vertices
+	if (attribute->getAttributeRole() == GLVertexAttributeBase::VERTEX0 || attribute->getAttributeRole() == GLVertexAttributeBase::VERTEX1) {
+		valid = true;
+	}
 	//mark VBO as changed
 	changed = true;
 }
@@ -179,7 +183,7 @@ GLsizei GLVertexBuffer::getNrOfPrimitivesRendered() const
 	return 0;
 }
 
-void GLVertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
+bool GLVertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if we're actually using vertex array objects
 	if (glContext->glBindVertexArray != nullptr && glArrayId != 0) {
@@ -231,9 +235,10 @@ void GLVertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 		}
 		changed = false;
 	}
+	return true;
 }
 
-void GLVertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
+bool GLVertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 {
 #ifdef USE_OPENGL_DESKTOP
 	//if we're doing tesselation, set the number of vertices per patch
@@ -249,9 +254,10 @@ void GLVertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 	else {
 		glContext->glDrawArrays(primitiveMode, 0, nrOfIndices);
 	}
+	return true;
 }
 
-void GLVertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
+bool GLVertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
 {
 	//check if we're actually using vertex array objects
 	if (glContext->glBindVertexArray != nullptr && glArrayId != 0) {
@@ -269,6 +275,7 @@ void GLVertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
 			indices->unbind();
 		}
 	}
+	return true;
 }
 
 GLVertexBuffer::~GLVertexBuffer()

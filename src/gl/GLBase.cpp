@@ -3,8 +3,18 @@
 
 
 IGLObject::IGLObject(std::shared_ptr<ContextBase> context)
-	: glContext(context)
+	: glContext(context), valid(false)
 {
+}
+
+bool IGLObject::isValid() const
+{
+	return valid;
+}
+
+IGLObject::~IGLObject()
+{
+	valid = false;
 }
 
 //------------------------------------------------------------------------------------------------------

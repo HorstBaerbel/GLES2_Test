@@ -31,7 +31,7 @@
 
 
 GLFramebuffer::GLFramebuffer(std::shared_ptr<ContextBase> & c)
-	: context(c), glId(0)
+	: IGLObject(c), glId(0)
 {
 #ifdef USE_OPENGL_ES
     //create statics on first run
@@ -44,7 +44,7 @@ GLFramebuffer::GLFramebuffer(std::shared_ptr<ContextBase> & c)
     }
 #endif
     //generate id for framebuffer object
-    context->glGenFramebuffers(1, &glId);
+    glContext->glGenFramebuffers(1, &glId);
 }
 
 bool GLFramebuffer::attach(const GLenum attachmentPoint, std::shared_ptr<GLTexture2D> & texture)
@@ -58,26 +58,26 @@ bool GLFramebuffer::attach(const GLenum attachmentPoint, std::shared_ptr<GLTextu
 		//if this is the first attachment, just use it, else check its size against the first one...
 		if (attachments.size() == 0) {
 			//alright. try attaching it
-			context->glBindFramebuffer(GL_FRAMEBUFFER, glId);
+			glContext->glBindFramebuffer(GL_FRAMEBUFFER, glId);
 			//the texture can not be bound when we try to attach it
 			texture->unbind();
-			context->glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint, GL_TEXTURE_2D, texture->getId(), 0);
+			glContext->glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint, GL_TEXTURE_2D, texture->getId(), 0);
 			//check for errors
 			const GLenum error = glGetError();
 			if (error != GL_NO_ERROR) {
                 std::cout << "Attachment of GLTexture2D " << texture->getId() << " to point " << attachmentPoint << " failed with error 0x" << std::hex << error << "!" << std::endl;
-				context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				return false;
 			}
 			//check if the framebuffer is complete
-			const GLenum status = context->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			const GLenum status = glContext->glCheckFramebufferStatus(GL_FRAMEBUFFER);
 			if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status || GL_FRAMEBUFFER_UNSUPPORTED == status || GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
                 std::cout << "Attachment of GLTexture2D " << texture->getId() << " to point " << attachmentPoint << " failed. Framebuffer not complete. Error 0x" << std::hex << error << "!" << std::endl;
-				context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				return false;
 			}
 			//unbind frame buffer
-			context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			//just add it
 			Attachment temp;
 			temp.point = attachmentPoint;
@@ -102,26 +102,24 @@ bool GLFramebuffer::attach(const GLenum attachmentPoint, std::shared_ptr<GLTextu
 				}
 			}
 			//alright. try attaching it
-			context->glBindFramebuffer(GL_FRAMEBUFFER, glId);
+			glContext->glBindFramebuffer(GL_FRAMEBUFFER, glId);
 			//the texture can not be bound when we try to attach it
 			texture->unbind();
-			context->glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint, GL_TEXTURE_2D, texture->getId(), 0);
+			glContext->glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint, GL_TEXTURE_2D, texture->getId(), 0);
 			//check for errors
 			const GLenum error = glGetError();
 			if (error != GL_NO_ERROR) {
 				std::cout << "Attachment of GLTexture2D " << texture->getId() << " to point " << attachmentPoint << " failed with error 0x" << std::hex << error << "!" << std::endl;
-				context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				return false;
 			}
 			//check if the framebuffer is complete
-			const GLenum status = context->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			const GLenum status = glContext->glCheckFramebufferStatus(GL_FRAMEBUFFER);
 			if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status || GL_FRAMEBUFFER_UNSUPPORTED == status || GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
 				std::cout << "Attachment of GLTexture2D " << texture->getId() << " to point " << attachmentPoint << " failed. Framebuffer not complete. Error 0x" << std::hex << status << "!" << std::endl;
-				context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				return false;
 			}
-			//unbind frame buffer
-			context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			//should have worked. store it
 			Attachment temp;
 			temp.point = attachmentPoint;
@@ -129,6 +127,10 @@ bool GLFramebuffer::attach(const GLenum attachmentPoint, std::shared_ptr<GLTextu
 			attachments.push_back(temp);
 			//add a discard element too
 			discards.push_back(attachmentPoint);
+			//check for completeness
+			valid = (GL_FRAMEBUFFER_COMPLETE == glContext->glCheckFramebufferStatus(GL_FRAMEBUFFER));
+			//unbind frame buffer
+			glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			return true;
 		}
 	}
@@ -143,9 +145,7 @@ const GLFramebuffer::Attachment & GLFramebuffer::getAttachment(const GLenum atta
 			return (*ait);
 		}
 	}
-
-	//TODO: This sucks! Do it right.
-	return Attachment();
+	throw GLFrameBufferException("GLFramebuffer::getAttachment - No attachment at attachment point " + std::to_string((_ULonglong)attachmentPoint) + "!");
 }
 
 GLsizei GLFramebuffer::getWidth() const
@@ -171,54 +171,28 @@ GLuint GLFramebuffer::getId() const
 	return glId;
 }
 
-bool GLFramebuffer::isValid() const
-{
-	if (glId > 0) {
-		if (attachments.size() > 0) {
-			//bind framebuffer
-			context->glBindFramebuffer(GL_FRAMEBUFFER, glId);
-			//check for completeness
-			const GLenum status = context->glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			if (GL_FRAMEBUFFER_COMPLETE == status) {
-				//unbind it again
-				context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				return true;
-			}
-			else {
-                std::cout << "Framebuffer " << glId << " not complete. Error 0x" << std::hex << status << "!" << std::endl;
-			}
-			//unbind it again
-			context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		}
-		else {
-            std::cout << "Framebuffer " << glId << " has no attachments!" << std::endl;
-		}
-	}
-	return false;
-}
-
 bool GLFramebuffer::blitTo(std::shared_ptr<GLFramebuffer> & to, const GLbitfield mask, const GLenum filter)
 {
 	if (glId > 0 && to->glId > 0) {
 #ifdef USE_OPENGL_ES
 		//bind the backbuffer for all operations
-		context->glBindFramebuffer(GL_FRAMEBUFFER, to->glId);
+		glContext->glBindFramebuffer(GL_FRAMEBUFFER, to->glId);
 		//set destination viewport size
 		glViewport(0, 0, to->getWidth(), to->getHeight());
 		//bind source texture
 		attachments.front().texture->bind();
-		context->glUseProgram(quadShader);
-		context->glVertexAttribPointer(quadVertexAttribute, 3, GL_FLOAT, GL_FALSE, 0, quadVertices);
-		context->glVertexAttribPointer(quadTexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, quadTexCoords);
-		context->glEnableVertexAttribArray(quadVertexAttribute);
-		context->glEnableVertexAttribArray(quadTexCoordAttribute);
-		context->glUniform1i(quadTexSamplerUniform, 0);
-		context->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glContext->glUseProgram(quadShader);
+		glContext->glVertexAttribPointer(quadVertexAttribute, 3, GL_FLOAT, GL_FALSE, 0, quadVertices);
+		glContext->glVertexAttribPointer(quadTexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, quadTexCoords);
+		glContext->glEnableVertexAttribArray(quadVertexAttribute);
+		glContext->glEnableVertexAttribArray(quadTexCoordAttribute);
+		glContext->glUniform1i(quadTexSamplerUniform, 0);
+		glContext->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 #else
 		//bind this framebuffer for reading, the other for drawing
-		context->glBindFramebuffer(GL_READ_FRAMEBUFFER, glId);
-		context->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, to->glId);
-		context->glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, to->getWidth(), to->getHeight(), mask, filter);
+		glContext->glBindFramebuffer(GL_READ_FRAMEBUFFER, glId);
+		glContext->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, to->glId);
+		glContext->glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, to->getWidth(), to->getHeight(), mask, filter);
 #endif
 		return true;
 	}
@@ -230,23 +204,23 @@ bool GLFramebuffer::blitToScreen(const int width, const int height, const GLbitf
 	if (glId > 0) {
 #ifdef USE_OPENGL_ES
 		//bind the backbuffer for all operations
-		context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//set destination viewport size
 		glViewport(0, 0, width, height);
 		//bind source texture
 		attachments.front().texture->bind();
-		context->glUseProgram(quadShader);
-		context->glVertexAttribPointer(quadVertexAttribute, 3, GL_FLOAT, GL_FALSE, 0, quadVertices);
-		context->glVertexAttribPointer(quadTexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, quadTexCoords);
-		context->glEnableVertexAttribArray(quadVertexAttribute);
-		context->glEnableVertexAttribArray(quadTexCoordAttribute);
-		context->glUniform1i(quadTexSamplerUniform, 0);
-		context->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glContext->glUseProgram(quadShader);
+		glContext->glVertexAttribPointer(quadVertexAttribute, 3, GL_FLOAT, GL_FALSE, 0, quadVertices);
+		glContext->glVertexAttribPointer(quadTexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, quadTexCoords);
+		glContext->glEnableVertexAttribArray(quadVertexAttribute);
+		glContext->glEnableVertexAttribArray(quadTexCoordAttribute);
+		glContext->glUniform1i(quadTexSamplerUniform, 0);
+		glContext->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 #else
 		//bind this framebuffer for reading, the backbuffer for drawing
-		context->glBindFramebuffer(GL_READ_FRAMEBUFFER, glId);
-		context->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		context->glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, width, height, mask, filter);
+		glContext->glBindFramebuffer(GL_READ_FRAMEBUFFER, glId);
+		glContext->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glContext->glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, width, height, mask, filter);
 #endif
 		return true;
 	}
@@ -260,9 +234,9 @@ bool GLFramebuffer::blitFromScreen(const int width, const int height, const GLbi
 #else
 	if (glId > 0) {
 		//bind this framebuffer for drawing, the backbuffer for reading
-		context->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		context->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glId);
-		context->glBlitFramebuffer(0, 0, width, height, 0, 0, getWidth(), getHeight(), mask, filter);
+		glContext->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		glContext->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glId);
+		glContext->glBlitFramebuffer(0, 0, width, height, 0, 0, getWidth(), getHeight(), mask, filter);
 		return true;
 	}
 #endif
@@ -273,27 +247,27 @@ bool GLFramebuffer::discard() const
 {
     //only available on OpenGL ES (2.0)
 #ifdef USE_OPENGL_ES
-	if (glId > 0 && context->glDiscardFramebuffer != nullptr) {
-		context->glBindFramebuffer(GL_FRAMEBUFFER, glId);
-		context->glDiscardFramebuffer(GL_FRAMEBUFFER, discards.size(), discards.data());
+	if (glId > 0 && glContext->glDiscardFramebuffer != nullptr) {
+		glContext->glBindFramebuffer(GL_FRAMEBUFFER, glId);
+		glContext->glDiscardFramebuffer(GL_FRAMEBUFFER, discards.size(), discards.data());
 		return true;
 	}
 #endif
 	return false;
 }
 
-bool GLFramebuffer::bind() const
+bool GLFramebuffer::bind(std::shared_ptr<ParameterBase> parameter)
 {
 	if (glId > 0) {
-		context->glBindFramebuffer(GL_FRAMEBUFFER, glId);
+		glContext->glBindFramebuffer(GL_FRAMEBUFFER, glId);
 		return true;
 	}
 	return false;
 }
 
-bool GLFramebuffer::unbind() const
+bool GLFramebuffer::unbind(std::shared_ptr<ParameterBase> parameter)
 {
-	context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	return true;
 }
 
@@ -301,8 +275,20 @@ GLFramebuffer::~GLFramebuffer()
 {
 	if (glId > 0) {
 		//unbind and free framebuffer. attachments are freed automagically
-		context->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		context->glDeleteFramebuffers(1, &glId);
+		glContext->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glContext->glDeleteFramebuffers(1, &glId);
 		glId = 0;
 	}
+}
+
+//------------------------------------------------------------------------------------------------------
+
+GLFrameBufferException::GLFrameBufferException(const char * errorString) throw()
+	: GLException(errorString)
+{
+}
+
+GLFrameBufferException::GLFrameBufferException(const std::string & errorString) throw()
+	: GLException(errorString)
+{
 }

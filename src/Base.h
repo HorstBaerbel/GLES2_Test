@@ -94,9 +94,9 @@ bool Parameter<TYPE>::operator!=(const Parameter<TYPE> & b)
 class IRenderableObject
 {
 public:
-	virtual void prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
-	virtual void render(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
-	virtual void finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual bool prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual bool render(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual bool finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------
@@ -104,8 +104,8 @@ public:
 class IBindableObject
 {
 public:
-	virtual void bind(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
-	virtual void unbind(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
+	virtual bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) = 0;
 };
 
 //------------------------------------------------------------------------------------------------------

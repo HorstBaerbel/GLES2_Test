@@ -4,10 +4,10 @@
 
 
 GLTexture2D::GLTexture2D(std::shared_ptr<ContextBase> & c, const int width, const int height, const GLint internalFormat, const GLenum format, const GLenum type)
-	: context(c), glId(0), w(-1), h(-1), glInternalFormat(GL_NONE), glFormat(GL_NONE), glType(GL_NONE), glUnit(GL_NONE), valid(false)
+	: IGLObject(c), glId(0), w(-1), h(-1), glInternalFormat(GL_NONE), glFormat(GL_NONE), glType(GL_NONE), glUnit(GL_NONE)
 {
 	//make our context current
-	context->makeCurrent();
+	glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 	//push all enable attributes. OpenGL ES doesn't have those functions...
 	glPushAttrib(GL_ENABLE_BIT);
@@ -86,15 +86,10 @@ GLenum GLTexture2D::getType() const
 	return glType;
 }
 
-bool GLTexture2D::isValid() const
-{
-	return valid;
-}
-
 bool GLTexture2D::setAutoMipMaps(const bool enable)
 {
 	if (glId > 0) {
-		context->makeCurrent();
+		glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 		//push all enable attributes. OpenGL ES doesn't have those functions...
 		glPushAttrib(GL_ENABLE_BIT);
@@ -107,6 +102,8 @@ bool GLTexture2D::setAutoMipMaps(const bool enable)
 		//restore enabled attributes
 		glPopAttrib();
 #endif
+		//mark as changed
+		changed = true;
 		return true;
 	}
 	return false;
@@ -115,7 +112,7 @@ bool GLTexture2D::setAutoMipMaps(const bool enable)
 bool GLTexture2D::setMagMinFilter(const GLenum magfilter, const GLenum minfilter)
 {
 	if (glId > 0) {
-		context->makeCurrent();
+		glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 		//push all enable attributes. OpenGL ES doesn't have those functions...
 		glPushAttrib(GL_ENABLE_BIT);
@@ -129,6 +126,8 @@ bool GLTexture2D::setMagMinFilter(const GLenum magfilter, const GLenum minfilter
 		//restore enabled attributes
 		glPopAttrib();
 #endif
+		//mark as changed
+		changed = true;
 		return true;
 	}
 	return false;
@@ -137,7 +136,7 @@ bool GLTexture2D::setMagMinFilter(const GLenum magfilter, const GLenum minfilter
 bool GLTexture2D::setWrapST(const GLenum wraps, const GLenum wrapt)
 {
 	if (glId > 0) {
-		context->makeCurrent();
+		glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 		//push all enable attributes. OpenGL ES doesn't have those functions...
 		glPushAttrib(GL_ENABLE_BIT);
@@ -151,6 +150,8 @@ bool GLTexture2D::setWrapST(const GLenum wraps, const GLenum wrapt)
 		//restore enabled attributes
 		glPopAttrib();
 #endif
+		//mark as changed
+		changed = true;
 		return true;
 	}
 	return false;
@@ -159,7 +160,7 @@ bool GLTexture2D::setWrapST(const GLenum wraps, const GLenum wrapt)
 bool GLTexture2D::setPixels(const GLvoid * pixels, const GLint level, const GLsizei width, GLsizei height)
 {
 	if (glId > 0) {
-		context->makeCurrent();
+		glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 		//push all enable attributes. OpenGL ES doesn't have those functions...
 		glPushAttrib(GL_ENABLE_BIT);
@@ -177,6 +178,8 @@ bool GLTexture2D::setPixels(const GLvoid * pixels, const GLint level, const GLsi
 		//restore enabled attributes
 		glPopAttrib();
 #endif
+		//mark as changed
+		changed = true;
 		//check for errors
 		GLenum error = glGetError();
 		if (error != GL_NO_ERROR) {
@@ -190,30 +193,44 @@ bool GLTexture2D::setPixels(const GLvoid * pixels, const GLint level, const GLsi
 	return false;
 }
 
-bool GLTexture2D::bind(GLenum unit)
+bool GLTexture2D::bind(std::shared_ptr<ParameterBase> parameter)
 {
+	GLenum unit = GL_TEXTURE0;
+	//try reading texture unit parameter
+	if (parameter) {
+		//try to cast to GLenum
+		std::shared_ptr<Parameter<GLenum>> castParameter = std::dynamic_pointer_cast<Parameter<GLenum>>(parameter);
+		if (castParameter) {
+			//ok. set new unit
+			unit = *castParameter;
+		}
+		else {
+			throw GLTextureException("GLTexture2D::bind - Parameter must be texture unit passed as Parameter<GLenum>!");
+		}
+	}
 	if (glId > 0) {
-		context->makeCurrent();
+		glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 		glEnable(GL_TEXTURE_2D);
 #endif
-		context->glActiveTexture(unit);
+		glContext->glActiveTexture(unit);
 		glBindTexture(GL_TEXTURE_2D, glId);
 		glUnit = unit;
+		changed = false;
 		return true;
 	}
 	return false;
 }
 
-bool GLTexture2D::unbind()
+bool GLTexture2D::unbind(std::shared_ptr<ParameterBase> parameter)
 {
 	if (glId > 0) {
 		if (glUnit != GL_NONE) {
-			context->makeCurrent();
+			glContext->makeCurrent();
 #ifdef USE_OPENGL_DESKTOP
 			glEnable(GL_TEXTURE_2D);
 #endif
-			context->glActiveTexture(glUnit);
+			glContext->glActiveTexture(glUnit);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glUnit = GL_NONE;
 			return true;
@@ -230,7 +247,7 @@ bool GLTexture2D::unbind()
 GLTexture2D::~GLTexture2D()
 {
 	if (glId > 0) {
-		context->makeCurrent();
+		glContext->makeCurrent();
 		glDeleteTextures(1, &glId);
 		glId = 0;
 		w = -1;
@@ -239,6 +256,17 @@ GLTexture2D::~GLTexture2D()
 		glFormat = GL_NONE;
 		glType = GL_NONE;
 		glUnit = GL_NONE;
-		valid = false;
 	}
+}
+
+//------------------------------------------------------------------------------------------------------
+
+GLTextureException::GLTextureException(const char * errorString) throw()
+	: GLException(errorString)
+{
+}
+
+GLTextureException::GLTextureException(const std::string & errorString) throw()
+	: GLException(errorString)
+{
 }
