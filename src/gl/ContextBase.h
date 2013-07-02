@@ -138,5 +138,7 @@ public:
 	GLuint createShaderFromFile(const std::string & vertexFile, const std::string & fragmentFile, std::string & errorString);
 	const std::string getShaderError(const GLuint vertexHandle, const GLuint fragmentHandle, const GLuint programHandle);
 
+    static std::string glErrorToString(GLenum error);
+
     virtual ~ContextBase();
 };

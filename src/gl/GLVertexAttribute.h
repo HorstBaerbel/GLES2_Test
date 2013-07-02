@@ -144,6 +144,9 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 				glContext->glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 				changed = false;
 			}
+            else {
+                throw GLVertexAttributeException("VertexAttribute::bind - glMapBuffer(GL_ELEMENT_ARRAY_BUFFER) failed: " + ContextBase::glErrorToString(glGetError()) + "!" );
+            }
 		}
 	}
 	else {
@@ -172,7 +175,7 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 			//(re-)allocate buffer if necessary
 			const size_t dataSize = getRawSize();
 			if (dataSize > oldDataSize) {
-				glContext->glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, nullptr, glUsage);
+				glContext->glBufferData(GL_ARRAY_BUFFER, dataSize, nullptr, glUsage);
 				oldDataSize = dataSize;
 			}
 			//map buffer to user space
@@ -183,6 +186,9 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 				glContext->glUnmapBuffer(GL_ARRAY_BUFFER);
 				changed = false;
 			}
+            else {
+                throw GLVertexAttributeException("VertexAttribute::bind - glMapBuffer(GL_ARRAY_BUFFER) failed: " + ContextBase::glErrorToString(glGetError()) + "!" );
+            }
 		}
 		//set up attribute pointer
 		glContext->glVertexAttribPointer(boundIndex, elementTypeInfo.nrOfComponents, elementTypeInfo.glType, elementTypeInfo.normalize, 0, nullptr);

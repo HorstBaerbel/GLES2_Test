@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <algorithm> //for std::transform
+#include <gl/glu.h> //for gluErrorString
 
 #if defined(__linux__)
 	#include <dlfcn.h>
@@ -416,6 +418,13 @@ GLuint ContextBase::createShaderFromFile(const std::string & vertexFile, const s
 		shaderHandle = createShader(vertexCode, fragmentCode, errorString);
 	}
 	return shaderHandle;
+}
+
+std::string ContextBase::glErrorToString(GLenum error)
+{
+    std::stringstream stream;
+    stream << (const char *)gluErrorString(error) << " (0x" << std::hex << error << ")";
+    return stream.str();
 }
 
 ContextBase::~ContextBase()
