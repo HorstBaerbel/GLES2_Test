@@ -10,7 +10,7 @@
 class GLVertexAttributeBase : public IBindableObject, public IChangeableObject, public IGLObject
 {
 public:
-	enum AttributeRole {VERTEX0, VERTEX1, TEXCOORD0, TEXCOORD1, TEXCOORD2, TEXCOORD3, NORMAL0, NORMAL1, COLOR0, COLOR1, DATA0, DATA1, INDEX};
+	enum AttributeRole {VERTEX0, VERTEX1, TEXCOORD0, TEXCOORD1, TEXCOORD2, TEXCOORD3, NORMAL0, NORMAL1, TANGENT0, TANGENT1, COLOR0, COLOR1, DATA0, DATA1, INDEX};
 	static const std::string AttributeName[];
 
 	struct ElementTypeInfo {
