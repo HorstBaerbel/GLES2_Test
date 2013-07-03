@@ -12,6 +12,9 @@ Author: bim.overbohm@googlemail.com
 typedef Eigen::Vector2f vec2;
 typedef Eigen::Vector3f vec3;
 typedef Eigen::Vector4f vec4;
+
+typedef Eigen::Vector4f col4;
+
 typedef Eigen::Matrix3f mat3;
 typedef Eigen::Matrix4f mat4;
 
@@ -80,6 +83,7 @@ namespace Math
 };
 
 //Some utility functions/templates
+#define VERTEX_TOLERANCE 0.0001f
 
 template<typename Derived>
 bool is_not_nan(Derived x)
@@ -100,13 +104,13 @@ bool is_valid(Derived x)
 }
 
 template <typename Derived>
-bool is_approx_absolute(Derived x, Derived y, float epsilon = 0.00001f)
+bool is_approx_absolute(Derived x, Derived y, float epsilon = VERTEX_TOLERANCE)
 {
-    return abs(x - y) < epsilon;
+    return ((x - y) * (x - y)) < (epsilon * epsilon);
 }
 
 template <typename Derived>
-bool is_approx_relative(Derived x, Derived y, float epsilon = 0.00001f)
+bool is_approx_relative(Derived x, Derived y, float epsilon = VERTEX_TOLERANCE)
 {
     return y != 0 && abs(abs(x / y) - 1) < epsilon;
 }
@@ -134,13 +138,13 @@ inline bool is_valid(const Eigen::MatrixBase<Derived> & x)
 }
 
 template <typename Derived>
-bool is_approx_absolute(const Eigen::MatrixBase<Derived> & x, const Eigen::MatrixBase<Derived> & y, float epsilon = 0.00001f)
+bool is_approx_absolute(const Eigen::MatrixBase<Derived> & x, const Eigen::MatrixBase<Derived> & y, float epsilon = VERTEX_TOLERANCE)
 {
-    return abs(x - y) < epsilon;
+    return Derived(x - y).squaredNorm() < (epsilon * epsilon);
 }
 
 template <typename Derived>
-bool is_approx_relative(const Eigen::MatrixBase<Derived> & x, const Eigen::MatrixBase<Derived> & y, float epsilon = 0.00001f)
+bool is_approx_relative(const Eigen::MatrixBase<Derived> & x, const Eigen::MatrixBase<Derived> & y, float epsilon = VERTEX_TOLERANCE)
 {
-    return y != 0 && abs(abs(x.array() / y.array()) - 1) < epsilon;
+    return y != 0 && Derived(Derived(x.array() / y.array()).cwiseAbs() - 1).cwiseAbs() < epsilon;
 }
