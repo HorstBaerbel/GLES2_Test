@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "../math/Math.h"
+#include "../math/ConversionProxy.h"
 #include "GLVertexBase.h"
 
 //------------------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ public:
 
 	void setElement(const TYPE & element, const size_t index);
 	void setElements(const TYPE * elements, size_t count);
+	void setElements(const ConversionProxyBase & proxy);
 
 	size_t getElementSize() const;
 	size_t getElementCount() const;
@@ -106,6 +108,17 @@ inline void GLVertexAttribute<TYPE>::setElements(const TYPE * elements, size_t c
 	changed = true;
 }
 
+template <typename TYPE>
+inline void GLVertexAttribute<TYPE>::setElements(const ConversionProxyBase & proxy)
+{
+	const size_t newCount = proxy.getCount();
+	if (data.size() < newCount) {
+		//only resize if count is bigger than current size
+		data.resize(newCount);
+	}
+	proxy.convertTo(data.data());
+	changed = true;
+}
 
 template <typename TYPE>
 inline size_t GLVertexAttribute<TYPE>::getElementSize() const

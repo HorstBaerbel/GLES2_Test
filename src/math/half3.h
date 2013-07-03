@@ -72,12 +72,6 @@ public:
 	inline operator half * () { return reinterpret_cast<half *>(this); }
 	//Const cast operator
 	inline operator const half * () const { return reinterpret_cast<const half *>(this); }
-
-	//array conversion
-	static void toHalf3(half3 * destination, const vec3 * source, const size_t n)
-	{
-		FastHalfCompressor::toHalf((half *)destination, (float *)source, n*3);
-	}
 	
 	//Stream stuff
     friend std::ostream & operator<<(std::ostream & os, const half3 & right);
@@ -85,6 +79,11 @@ public:
 };
 
 //------------------------------------------------------------------------------------------------------------------------
+
+inline void toHalf(half3 * destination, const vec3 * source, const size_t n)
+{
+	FastHalfCompressor::toHalf((half *)destination, (float *)source, n*3);
+}
 
 inline std::ostream & operator<<(std::ostream & os, const half3 & right)
 {
