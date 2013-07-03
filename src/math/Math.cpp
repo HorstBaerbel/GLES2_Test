@@ -170,7 +170,7 @@ inline int Math::floori(float x)
 
 inline float Math::trunc(float x)
 {
-	return (int)x;
+	return (float)((int)x);
 }
 
 inline int Math::trunci(float x)

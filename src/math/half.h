@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+
 //"Half" float value conversion routines.
 //Based on this: http://stackoverflow.com/questions/1659440/32-bit-to-16-bit-floating-point-conversion
 
@@ -43,7 +44,23 @@ public:
     /*!
     Convert float value to half-float value (GL_HALF / IEEE 754).
     */
-	static inline half toHalf(const float & value);
+	static inline half toHalf(const float & value)
+	{
+		Bits v, s;
+		v.f = value;
+		uint32_t sign = v.si & signN;
+		v.si ^= sign;
+		sign >>= shiftSign; // logical shift
+		s.si = mulN;
+		s.si = (uint32_t)(s.f * v.f); // correct subnormals
+		v.si ^= (s.si ^ v.si) & -(minN > v.si);
+		v.si ^= (infN ^ v.si) & -((infN > v.si) & (v.si > maxN));
+		v.si ^= (nanN ^ v.si) & -((nanN > v.si) & (v.si > infN));
+		v.ui >>= shift; // logical shift
+		v.si ^= ((v.si - maxD) ^ v.si) & -(v.si > maxC);
+		v.si ^= ((v.si - minD) ^ v.si) & -(v.si > subC);
+		return v.ui | sign;
+	}
 
 	/*!
     Convert array of float values to array of half-float values (GL_HALF / IEEE 754).
@@ -53,7 +70,24 @@ public:
     /*!
     Convert half-float value to float value (GL_HALF / IEEE 754).
     */
-	static inline float toFloat(const half & value);
+	static inline float toFloat(const half & value)
+	{
+		Bits v;
+		v.ui = value;
+		int32_t sign = v.si & signC;
+		v.si ^= sign;
+		sign <<= shiftSign;
+		v.si ^= ((v.si + minD) ^ v.si) & -(v.si > subC);
+		v.si ^= ((v.si + maxD) ^ v.si) & -(v.si > maxC);
+		Bits s;
+		s.si = mulC;
+		s.f *= v.si;
+		int32_t mask = -(norC > v.si);
+		v.si <<= shift;
+		v.si ^= (s.si ^ v.si) & mask;
+		v.si |= sign;
+		return v.f;
+	}
 
 	/*!
     Convert array of half-float values to array of float values (GL_HALF / IEEE 754).
@@ -91,6 +125,8 @@ public:
 	float toFloat(uint32_t value);
 };
 
+//Turn off warning C4293, else we get hundreds of warnings
+#pragma warning(disable : 4293)
 
 /*Table based-approach
 /* These macros implement a finite iterator useful to build lookup
@@ -136,6 +172,9 @@ static inline uint16_t float_to_half_nobranch(uint32_t x)
     bits |= (x & 0x007fffff) >> shifttable[(x >> 23) & 0x1ff];
     return bits;
 }
+
+//Turn warning C4293 on again
+#pragma warning(default : 4293)
 
 /*
 /* This method is faster than the OpenEXR implementation (very often

@@ -1,10 +1,6 @@
 #pragma once
 
-#include "math.h"
 #include "half.h"
-
-
-struct vec2;
 
 
 struct half2
@@ -61,12 +57,11 @@ public:
         n[1] = FastHalfCompressor::toHalf(fv[1]);
     }
 
-    inline half2(const vec2 & right);
-
-    inline half2(const half2 & right)
-    {
-        n = right.n;
-    }
+	inline half2(const vec2 & right)
+	{
+		n[0] = FastHalfCompressor::toHalf(right(0));
+		n[1] = FastHalfCompressor::toHalf(right(1));
+	}
 
 	//Cast operator
 	inline operator half * () { return reinterpret_cast<half *>(this); }
@@ -74,9 +69,30 @@ public:
 	inline operator const half * () const { return reinterpret_cast<const half *>(this); }
 
 	//array conversion
-	static void toHalf2(half2 * destination, const vec2 * source, const size_t n);
+	static void toHalf2(half2 * destination, const vec2 * source, const size_t n)
+	{
+		FastHalfCompressor::toHalf((half *)destination, (float *)source, n*2);
+	}
 
     //Stream stuff
     friend std::ostream & operator<<(std::ostream & os, const half2 & right);
     friend std::istream & operator>>(std::istream & is, half2 & right);
 };
+
+//------------------------------------------------------------------------------------------------------------------------
+
+inline std::ostream & operator<<(std::ostream & os, const half2 & right)
+{
+    for (int i = 0; i < 2; i++) {
+        os << right.n[i] << " ";
+    }
+    return os;
+}
+
+inline std::istream & operator>>(std::istream & is, half2 & right)
+{
+    for (int i = 0; i < 2; i++) {
+        is >> right.n[i];
+    }
+    return is;
+}

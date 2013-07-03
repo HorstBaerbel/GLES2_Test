@@ -1,10 +1,6 @@
 #pragma once
 
-#include "math.h"
 #include "half.h"
-
-
-struct vec4;
 
 
 struct half4
@@ -37,7 +33,7 @@ public:
 		n[0] = n[1] = n[2] = n[3] = FastHalfCompressor::toHalf(f);
     }
 
-    inline half4(const half _x, const half _y, const float _z, const float _w)
+    inline half4(const half _x, const half _y, const half _z, const half _w)
     {
         n[0] = _x;
         n[1] = _y;
@@ -61,7 +57,7 @@ public:
 		n[3] = fv[3];
     }
 
-    inline half2(const float * fv)
+    inline half4(const float * fv)
     {
         n[0] = FastHalfCompressor::toHalf(fv[0]);
         n[1] = FastHalfCompressor::toHalf(fv[1]);
@@ -69,12 +65,13 @@ public:
 		n[3] = FastHalfCompressor::toHalf(fv[3]);
     }
 
-    inline half4(const vec4 & right);
-
-    inline half4(const half4 & right)
-    {
-		n = right.n;
-    }
+	inline half4(const vec4 & right)
+	{
+		n[0] = FastHalfCompressor::toHalf(right(0));
+		n[1] = FastHalfCompressor::toHalf(right(1));
+		n[2] = FastHalfCompressor::toHalf(right(2));
+		n[3] = FastHalfCompressor::toHalf(right(3));
+	}
 
 	//Cast operator
 	inline operator half * () { return reinterpret_cast<half *>(this); }
@@ -82,9 +79,30 @@ public:
 	inline operator const half * () const { return reinterpret_cast<const half *>(this); }
 
 	//array conversion
-	static void tohalf4(half4 * destination, const vec4 * source, const size_t n);
+	static void toHalf4(half4 * destination, const vec4 * source, const size_t n)
+	{
+		FastHalfCompressor::toHalf((half *)destination, (float *)source, n*4);
+	}
 	
 	//Stream stuff
     friend std::ostream & operator<<(std::ostream & os, const half4 & right);
     friend std::istream & operator>>(std::istream & is, half4 & right);
 };
+
+//------------------------------------------------------------------------------------------------------------------------
+
+inline std::ostream & operator<<(std::ostream & os, const half4 & right)
+{
+    for (int i = 0; i < 4; i++) {
+        os << right.n[i] << " ";
+    }
+    return os;
+}
+
+inline std::istream & operator>>(std::istream & is, half4 & right)
+{
+    for (int i = 0; i < 4; i++) {
+        is >> right.n[i];
+    }
+    return is;
+}

@@ -4,28 +4,36 @@
 Some (2D) math library functions, some faster and/or less accurate than the standard functions
 Author: bim.overbohm@googlemail.com
 */
-
 #include <stdint.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+
 #include <Eigen/Eigen>
 #include <Eigen/StdVector> //this needs to be included if fixed-size Eigen values are being used in std containers
 
 typedef Eigen::Vector2f vec2;
 typedef Eigen::Vector3f vec3;
 typedef Eigen::Vector4f vec4;
-
 typedef Eigen::Vector4f col4;
-
+typedef Eigen::Matrix2f mat2;
 typedef Eigen::Matrix3f mat3;
 typedef Eigen::Matrix4f mat4;
+typedef Eigen::Quaternionf quat;
+
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(vec4)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(mat2)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(mat4)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(quat)
+
+#include "half.h"
+#include "half2.h"
+#include "half3.h"
+#include "half4.h"
 
 
 #define USE_LIBRARY_FUNCTIONS //define this to use standard library functions
-
-//For I/O and testing
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <string>
 
 //Standard math.h defines
 //#define M_E        2.71828182845904523536

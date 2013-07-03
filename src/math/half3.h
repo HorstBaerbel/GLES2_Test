@@ -1,10 +1,6 @@
 #pragma once
 
-#include "math.h"
 #include "half.h"
-
-
-struct vec3;
 
 
 struct half3
@@ -37,7 +33,7 @@ public:
 		n[0] = n[1] = n[2] = FastHalfCompressor::toHalf(f);
     }
 
-    inline half3(const half _x, const half _y, const float _z)
+    inline half3(const half _x, const half _y, const half _z)
     {
         n[0] = _x;
         n[1] = _y;
@@ -58,19 +54,19 @@ public:
 		n[2] = fv[2];
     }
 
-    inline half2(const float * fv)
+    inline half3(const float * fv)
     {
         n[0] = FastHalfCompressor::toHalf(fv[0]);
         n[1] = FastHalfCompressor::toHalf(fv[1]);
 		n[2] = FastHalfCompressor::toHalf(fv[2]);
     }
 
-    inline half3(const vec3 & right);
-
-    inline half3(const half3 & right)
-    {
-		n = right.n;
-    }
+	inline half3(const vec3 & right)
+	{
+		n[0] = FastHalfCompressor::toHalf(right(0));
+		n[1] = FastHalfCompressor::toHalf(right(1));
+		n[2] = FastHalfCompressor::toHalf(right(2));
+	}
 
 	//Cast operator
 	inline operator half * () { return reinterpret_cast<half *>(this); }
@@ -78,9 +74,30 @@ public:
 	inline operator const half * () const { return reinterpret_cast<const half *>(this); }
 
 	//array conversion
-	static void toHalf3(half3 * destination, const vec3 * source, const size_t n);
+	static void toHalf3(half3 * destination, const vec3 * source, const size_t n)
+	{
+		FastHalfCompressor::toHalf((half *)destination, (float *)source, n*3);
+	}
 	
 	//Stream stuff
     friend std::ostream & operator<<(std::ostream & os, const half3 & right);
     friend std::istream & operator>>(std::istream & is, half3 & right);
 };
+
+//------------------------------------------------------------------------------------------------------------------------
+
+inline std::ostream & operator<<(std::ostream & os, const half3 & right)
+{
+    for (int i = 0; i < 3; i++) {
+        os << right.n[i] << " ";
+    }
+    return os;
+}
+
+inline std::istream & operator>>(std::istream & is, half3 & right)
+{
+    for (int i = 0; i < 3; i++) {
+        is >> right.n[i];
+    }
+    return is;
+}
