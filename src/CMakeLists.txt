@@ -108,6 +108,10 @@ set(TARGET_HEADERS
     gl/GLVertexBuffer.h
     gl/WindowBase.h
 	math/Math.h
+	math/half.h
+	math/half2.h
+	math/half3.h
+	math/half4.h
 	math/Transform2.h
 )
 set(TARGET_SOURCES
@@ -124,6 +128,7 @@ set(TARGET_SOURCES
     gl/GLVertexBuffer.cpp
     gl/WindowBase.cpp
 	math/Math.cpp
+	math/half.cpp
 	math/Transform2.cpp
 )
 
