@@ -20,7 +20,10 @@ public:
 
 	void addElement(const TYPE & element);
 	void addElements(const TYPE * elements, size_t count);
-	void addElements(const void * rawElements, size_t count);
+	//void addElements(const void * rawElements, size_t count);
+
+	void setElement(const TYPE & element, const size_t index);
+	void setElements(const TYPE * elements, size_t count);
 
 	size_t getElementSize() const;
 	size_t getElementCount() const;
@@ -68,14 +71,14 @@ inline void GLVertexAttribute<TYPE>::addElement(const TYPE & element)
 template <typename TYPE>
 inline void GLVertexAttribute<TYPE>::addElements(const TYPE * elements, size_t count)
 {
-	for (size_t i = 0; i < count; i++) {
-		data.push_back(elements[i]);
-	}
+	const size_t currentSize = data.size();
+	data.resize(currentSize + count);
+	memcpy(data.data() + sizeof(TYPE) * currentSize, elements, sizeof(TYPE) * count);
 	changed = true;
 }
 
 //TODO: This sucks and will probably most break very soon...
-template <typename TYPE>
+/*template <typename TYPE>
 inline void GLVertexAttribute<TYPE>::addElements(const void * rawElements, size_t count)
 {
 	const TYPE * elements = (const TYPE *)rawElements;
@@ -83,7 +86,26 @@ inline void GLVertexAttribute<TYPE>::addElements(const void * rawElements, size_
 		data.push_back(elements[i]);
 	}
 	changed = true;
+}*/
+
+template <typename TYPE>
+inline void GLVertexAttribute<TYPE>::setElement(const TYPE & element, const size_t index)
+{
+	data[index] = element;
+	changed = true;
 }
+
+template <typename TYPE>
+inline void GLVertexAttribute<TYPE>::setElements(const TYPE * elements, size_t count)
+{
+	if (data.size() < count) {
+		//only resize if count is bigger than current size
+		data.resize(count);
+	}
+	memcpy(data.data(), elements, sizeof(TYPE) * count);
+	changed = true;
+}
+
 
 template <typename TYPE>
 inline size_t GLVertexAttribute<TYPE>::getElementSize() const
@@ -220,7 +242,7 @@ inline GLVertexAttribute<TYPE>::~GLVertexAttribute()
 }
 
 //------------------------------------------------------------------------------------------------------
-//Type traits
+//Type traits for element info
 
 template <> inline const GLVertexAttribute<float>::ElementTypeInfo & GLVertexAttribute<float>::getElementTypeInfo() const
 {
@@ -284,6 +306,21 @@ template <> inline const GLVertexAttribute<vec3>::ElementTypeInfo & GLVertexAttr
 template <> inline const GLVertexAttribute<vec4>::ElementTypeInfo & GLVertexAttribute<vec4>::getElementTypeInfo() const
 {
 	static const ElementTypeInfo info = {4, GL_FALSE, GL_FLOAT}; return info;
+}
+
+template <> inline const GLVertexAttribute<half2>::ElementTypeInfo & GLVertexAttribute<half2>::getElementTypeInfo() const
+{
+	static const ElementTypeInfo info = {2, GL_FALSE, GL_HALF_FLOAT}; return info;
+}
+
+template <> inline const GLVertexAttribute<half3>::ElementTypeInfo & GLVertexAttribute<half3>::getElementTypeInfo() const
+{
+	static const ElementTypeInfo info = {3, GL_FALSE, GL_HALF_FLOAT}; return info;
+}
+
+template <> inline const GLVertexAttribute<half4>::ElementTypeInfo & GLVertexAttribute<half4>::getElementTypeInfo() const
+{
+	static const ElementTypeInfo info = {4, GL_FALSE, GL_HALF_FLOAT}; return info;
 }
 
 //TODO: make this work for textures
