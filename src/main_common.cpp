@@ -51,15 +51,15 @@ void createTriangle()
 {
 	context->makeCurrent();
 	vertices = std::make_shared<GLVertexAttribute<vec3>>(context, GLVertexAttributeBase::VERTEX0);
-	vertices->addElements((void *)triangleVertices, 3);
+	vertices->addElements((vec3 *)triangleVertices, 3);
 	colors = std::make_shared<GLVertexAttribute<vec3>>(context, GLVertexAttributeBase::COLOR0);
-	colors->addElements((void *)triangleColors, 3);
+	colors->addElements((vec3 *)triangleColors, 3);
 	indices = std::make_shared<GLVertexAttribute<uint16_t>>(context, GLVertexAttributeBase::INDEX);
 	indices->addElements(triangleIndices, 9);
 	vbo = std::make_shared<GLVertexBuffer>(context);
 	vbo->addAttribute(vertices);
 	vbo->addAttribute(colors);
-	//vbo->setIndices(indices);
+	vbo->setIndices(indices);
 	triangleAttributeMap = std::make_shared<GLVertexAttributeMap>();
 	triangleAttributeMap->setAttributeIndex(GLVertexAttributeBase::VERTEX0, triangleVertexAttribute);
 	triangleAttributeMap->setAttributeIndex(GLVertexAttributeBase::COLOR0, triangleColorAttribute);
