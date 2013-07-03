@@ -62,11 +62,6 @@ public:
 		return v.ui | sign;
 	}
 
-	/*!
-    Convert array of float values to array of half-float values (GL_HALF / IEEE 754).
-    */
-	static void toHalf(half * destination, const float * source, const size_t n);
-
     /*!
     Convert half-float value to float value (GL_HALF / IEEE 754).
     */
@@ -88,12 +83,27 @@ public:
 		v.si |= sign;
 		return v.f;
 	}
-
-	/*!
-    Convert array of half-float values to array of float values (GL_HALF / IEEE 754).
-    */
-	static void toFloat(float * destination, const half * source, const size_t n);
 };
+
+/*!
+Convert array of float values to array of half-float values (GL_HALF / IEEE 754).
+*/
+inline void convert(half * destination, const float * source, const size_t n)
+{
+	for (size_t i = 0; i < n; ++i) {
+		destination[i] = FastHalfCompressor::toHalf(source[i]);
+	}
+}
+
+/*!
+Convert array of half-float values to array of float values (GL_HALF / IEEE 754).
+*/
+inline void convert(float * destination, const half * source, const size_t n)
+{
+	for (size_t i = 0; i < n; ++i) {
+		destination[i] = FastHalfCompressor::toFloat(source[i]);
+	}
+}
 
 
 class PreciseHalfCompressor

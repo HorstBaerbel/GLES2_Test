@@ -107,6 +107,7 @@ set(TARGET_HEADERS
 	gl/GLVertexBase.h
     gl/GLVertexBuffer.h
     gl/WindowBase.h
+    math/DataProxy.h
 	math/Math.h
 	math/half.h
 	math/half2.h

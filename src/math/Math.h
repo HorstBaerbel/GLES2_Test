@@ -90,7 +90,23 @@ namespace Math
 	extern inline float rand(int * seed); //returns value between -1 and 1.
 };
 
-//Some utility functions/templates
+//----- some conversion helpers ----------------------------------------------------------------------------------------
+
+//Convert float color to RGBA8888
+inline void convert(unsigned int * destination, const col4 * source, const size_t n)
+{
+    const col4 s255(255.0f, 255.0f, 255.0f, 255.0f);
+	for (size_t i = 0; i < n; ++i) {
+        unsigned char * dest = (unsigned char *)destination;
+        col4 col = source[i].cwiseProduct(s255);
+        dest[0] = (unsigned char)col(0);
+        dest[1] = (unsigned char)col(1);
+        dest[2] = (unsigned char)col(2);
+        dest[3] = (unsigned char)col(3);
+    }
+}
+
+//----- some utility functions/templates -------------------------------------------------------------------------------
 #define VERTEX_TOLERANCE 0.0001f
 
 template<typename Derived>

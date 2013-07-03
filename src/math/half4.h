@@ -85,9 +85,9 @@ public:
 
 //------------------------------------------------------------------------------------------------------------------------
 
-inline void toHalf(half4 * destination, const vec4 * source, const size_t n)
+inline void convert(half4 * destination, const vec4 * source, const size_t n)
 {
-	FastHalfCompressor::toHalf((half *)destination, (float *)source, n*4);
+	convert((half *)destination, (float *)source, n*4);
 }
 
 inline std::ostream & operator<<(std::ostream & os, const half4 & right)

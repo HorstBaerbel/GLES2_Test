@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "../math/Math.h"
-#include "../math/ConversionProxy.h"
+#include "../math/DataProxy.h"
 #include "GLVertexBase.h"
 
 //------------------------------------------------------------------------------------------------------
@@ -12,6 +12,7 @@ template <typename TYPE>
 class GLVertexAttribute : public GLVertexAttributeBase
 {
 	std::vector<TYPE> data;
+    std::shared_ptr<DataProxyBase> dataProxy;
 	size_t oldDataSize;
 	GLuint boundIndex;
 	GLuint glBufferId;
@@ -25,7 +26,9 @@ public:
 
 	void setElement(const TYPE & element, const size_t index);
 	void setElements(const TYPE * elements, size_t count);
-	void setElements(const ConversionProxyBase & proxy);
+    void setElements(const DataProxyBase & proxy);
+
+    void setProxy(std::shared_ptr<DataProxyBase> & proxy);
 
 	size_t getElementSize() const;
 	size_t getElementCount() const;
@@ -109,15 +112,22 @@ inline void GLVertexAttribute<TYPE>::setElements(const TYPE * elements, size_t c
 }
 
 template <typename TYPE>
-inline void GLVertexAttribute<TYPE>::setElements(const ConversionProxyBase & proxy)
+inline void GLVertexAttribute<TYPE>::setElements(const DataProxyBase & proxy)
 {
 	const size_t newCount = proxy.getCount();
 	if (data.size() < newCount) {
 		//only resize if count is bigger than current size
 		data.resize(newCount);
 	}
-	proxy.convertTo(data.data());
+	proxy.copyTo(data.data());
+    //do not proxy change status
 	changed = true;
+}
+
+template <typename TYPE>
+inline void GLVertexAttribute<TYPE>::setProxy(std::shared_ptr<DataProxyBase> & proxy)
+{
+    dataProxy = proxy;
 }
 
 template <typename TYPE>
@@ -129,7 +139,12 @@ inline size_t GLVertexAttribute<TYPE>::getElementSize() const
 template <typename TYPE>
 inline size_t GLVertexAttribute<TYPE>::getElementCount() const
 {
-	return data.size();
+    if (dataProxy) {
+        return dataProxy->getCount();
+    }
+    else {
+	    return data.size();
+    }
 }
 
 template <typename TYPE>
@@ -147,18 +162,32 @@ GLenum GLVertexAttribute<TYPE>::getElementGLType() const
 template <typename TYPE>
 inline const void * GLVertexAttribute<TYPE>::getRawData() const
 {
-	return data.data();
+    if (dataProxy) {
+        //we can only directly copy from a data proxy, not get a pointer to its memory
+        return nullptr;
+    }
+    else {
+	    return data.data();
+    }
 }
 
 template <typename TYPE>
 inline size_t GLVertexAttribute<TYPE>::getRawSize() const
 {
-	return data.size() * sizeof(TYPE);
+    if (dataProxy) {
+        return dataProxy->getCount() * sizeof(TYPE);
+    }
+    else {
+	    return data.size() * sizeof(TYPE);
+    }
 }
 
 template <typename TYPE>
 inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> parameter)
 {
+    if (dataProxy) {
+        changed = dataProxy->hasChanged();
+    }
 	//enable VBOs
 	glEnableClientState(GL_VERTEX_ARRAY);
 	//check if this is an index array to an actual vertex attribute
@@ -175,7 +204,12 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 			GLvoid * buffer = glContext->glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 			if (buffer != nullptr) {
 				//now add data
-				memcpy(buffer, getRawData(), dataSize);
+                if (dataProxy) {
+                    dataProxy->copyTo(buffer);
+                }
+                else {
+				    memcpy(buffer, getRawData(), dataSize);
+                }
 				glContext->glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 				changed = false;
 			}
@@ -217,7 +251,12 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 			GLvoid * buffer = glContext->glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 			if (buffer != nullptr) {
 				//now add data
-				memcpy(buffer, getRawData(), dataSize);
+				if (dataProxy) {
+                    dataProxy->copyTo(buffer);
+                }
+                else {
+				    memcpy(buffer, getRawData(), dataSize);
+                }
 				glContext->glUnmapBuffer(GL_ARRAY_BUFFER);
 				changed = false;
 			}
@@ -230,6 +269,9 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
 		//unbid buffer again. this saves us a call later
 		glContext->glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+    if (dataProxy) {
+        dataProxy->setChanged(changed);
+    }
 	return true;
 }
 

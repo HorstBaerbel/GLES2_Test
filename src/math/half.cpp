@@ -1,21 +1,6 @@
 #include "half.h"
 
 
-void FastHalfCompressor::toHalf(half * destination, const float * source, const size_t n)
-{
-	for (size_t i = 0; i < n; ++i) {
-		destination[i] = toHalf(source[i]);
-	}
-}
-
-void FastHalfCompressor::toFloat(float * destination, const half * source, const size_t n)
-{
-	for (size_t i = 0; i < n; ++i) {
-		destination[i] = toFloat(source[i]);
-	}
-}
-
-
 PreciseHalfCompressor::PreciseHalfCompressor(float min, float epsilon, float max, int precision)
 {
 	// legal values
