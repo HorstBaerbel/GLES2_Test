@@ -7,6 +7,11 @@ inline half2::half2(const vec2 & right)
 	n[1] = FastHalfCompressor::toHalf(right(1));
 }
 
+static void half2::toHalf3(half2 * destination, const vec2 * source, const size_t n)
+{
+	FastHalfCompressor::toHalf(destination, (float *)source, n*2);
+}
+
 //------------------------------------------------------------------------------------------------------------------------
 
 std::ostream & operator<<(std::ostream & os, const half2 & right)

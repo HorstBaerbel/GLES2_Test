@@ -16,7 +16,7 @@ public:
 			half x, y;
 		};
 		struct {
-			half u, v;
+			half s, t;
 		};
 		half n[2];
 	};
@@ -55,18 +55,26 @@ public:
         n[1] = fv[1];
     }
 
+    inline half2(const float * fv)
+    {
+        n[0] = FastHalfCompressor::toHalf(fv[0]);
+        n[1] = FastHalfCompressor::toHalf(fv[1]);
+    }
+
     inline half2(const vec2 & right);
 
     inline half2(const half2 & right)
     {
-        n[0] = right.n[0];
-        n[1] = right.n[1];
+        n = right.n;
     }
 
 	//Cast operator
 	inline operator half * () { return reinterpret_cast<half *>(this); }
 	//Const cast operator
 	inline operator const half * () const { return reinterpret_cast<const half *>(this); }
+
+	//array conversion
+	static void toHalf2(half2 * destination, const vec2 * source, const size_t n);
 
     //Stream stuff
     friend std::ostream & operator<<(std::ostream & os, const half2 & right);

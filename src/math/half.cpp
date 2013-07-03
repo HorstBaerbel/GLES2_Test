@@ -19,6 +19,13 @@ inline half FastHalfCompressor::toHalf(const float & value)
 	return v.ui | sign;
 }
 
+void FastHalfCompressor::toHalf(half * destination, const float * source, const size_t n)
+{
+	for (size_t i = 0; i < n; ++i) {
+		destination[i] = toHalf(source[i]);
+	}
+}
+
 inline float FastHalfCompressor::toFloat(const half & value)
 {
 	Bits v;
@@ -36,6 +43,13 @@ inline float FastHalfCompressor::toFloat(const half & value)
 	v.si ^= (s.si ^ v.si) & mask;
 	v.si |= sign;
 	return v.f;
+}
+
+void FastHalfCompressor::toFloat(float * destination, const half * source, const size_t n)
+{
+	for (size_t i = 0; i < n; ++i) {
+		destination[i] = toFloat(source[i]);
+	}
 }
 
 

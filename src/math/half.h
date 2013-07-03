@@ -45,10 +45,20 @@ public:
     */
 	static inline half toHalf(const float & value);
 
+	/*!
+    Convert array of float values to array of half-float values (GL_HALF / IEEE 754).
+    */
+	static void toHalf(half * destination, const float * source, const size_t n);
+
     /*!
     Convert half-float value to float value (GL_HALF / IEEE 754).
     */
 	static inline float toFloat(const half & value);
+
+	/*!
+    Convert array of half-float values to array of float values (GL_HALF / IEEE 754).
+    */
+	static void toFloat(float * destination, const half * source, const size_t n);
 };
 
 
