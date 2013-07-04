@@ -28,9 +28,9 @@ endif()
 #finding necessary packages
 #-------------------------------------------------------------------------------
 if(${GLSystem} MATCHES "Desktop OpenGL")
-	find_package(OpenGL REQUIRED)
+    find_package(OpenGL REQUIRED)
 else()
-	find_package(OpenGLES2 REQUIRED)
+    find_package(OpenGLES2 REQUIRED)
 endif()
 find_package(Eigen3 REQUIRED)
 
@@ -96,41 +96,41 @@ set(TARGET_HEADERS
     Base.h
     Timing.h
     components/Box2D.h
-	components/Group2D.h
-	components/Object2D.h
+    components/Group2D.h
+    components/Object2D.h
     gl/GLBase.h
     gl/ContextBase.h
     gl/GLFramebuffer.h
     gl/GLIncludes.h
     gl/GLTexture2D.h
-	gl/GLVertexAttribute.h
-	gl/GLVertexBase.h
+    gl/GLVertexAttribute.h
+    gl/GLVertexBase.h
     gl/GLVertexBuffer.h
     gl/WindowBase.h
     math/DataProxy.h
-	math/Math.h
-	math/half.h
-	math/half2.h
-	math/half3.h
-	math/half4.h
-	math/Transform2.h
+    math/Math.h
+    math/half.h
+    math/half2.h
+    math/half3.h
+    math/half4.h
+    math/Transform2.h
 )
 set(TARGET_SOURCES
     Base.cpp
     Timing.cpp
     components/Box2D.cpp
-	components/Group2D.cpp
-	components/Object2D.cpp
+    components/Group2D.cpp
+    components/Object2D.cpp
     gl/GLBase.cpp
     gl/ContextBase.cpp
     gl/GLFramebuffer.cpp
     gl/GLTexture2D.cpp
-	gl/GLVertexBase.cpp
+    gl/GLVertexBase.cpp
     gl/GLVertexBuffer.cpp
     gl/WindowBase.cpp
-	math/Math.cpp
-	math/half.cpp
-	math/Transform2.cpp
+    math/Math.cpp
+    math/half.cpp
+    math/Transform2.cpp
 )
 
 #-------------------------------------------------------------------------------
@@ -166,6 +166,13 @@ else()
         gl/ESWindow.cpp
     )
 endif()
+
+#-------------------------------------------------------------------------------
+#define groups for source (mostly for VS)
+source_group("gl" REGULAR_EXPRESSION gl\\/.*)
+source_group("components" REGULAR_EXPRESSION components\\/.*)
+source_group("math" REGULAR_EXPRESSION math\\/.*)
+source_group("main" REGULAR_EXPRESSION ^[^\\/]*$) #dunno why this doesn't work
 
 #-------------------------------------------------------------------------------
 #define libraries and directories
@@ -211,7 +218,7 @@ target_link_libraries(GLES2_test ${TARGET_LIBRARIES})
 #special properties for windows builds
 if(MSVC)
     #show console in debug builds, but not in proper release builds
-    #Note that up to CMake 2.8.10 this feature is broken: http://public.kitware.com/Bug/view.php?id=12566
+    #Note that up to CMake 2.8.11.2 this feature is broken: http://public.kitware.com/Bug/view.php?id=12566
     set_target_properties(GLES2_test PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
     set_target_properties(GLES2_test PROPERTIES COMPILE_DEFINITIONS_DEBUG "_CONSOLE")
     set_target_properties(GLES2_test PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
