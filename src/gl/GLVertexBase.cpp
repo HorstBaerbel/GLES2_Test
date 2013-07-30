@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------------------------------
 
-const std::string GLVertexAttributeBase::AttributeName[] = {"vertex0", "vertex1", "texCoord0", "texCoord1", "texCoord2", "texCoord3", "normal0", "normal1", "color0", "color1", "data0", "data1", "index"};
+const std::string GLVertexAttributeBase::AttributeName[] = {"vertex0", "vertex1", "texCoord0", "texCoord1", "texCoord2", "texCoord3", "normal0", "normal1", "tangent0", "tangent1", "bitangent0", "bitangent1", "color0", "color1", "data0", "data1", "index"};
 
 GLVertexAttributeBase::GLVertexAttributeBase(std::shared_ptr<ContextBase> & context, AttributeRole role, GLenum usagePattern)
 	: IChangeableObject(), IGLObject(context), attributeRole(role), glUsage(usagePattern), elementTypeInfo(getElementTypeInfo())
