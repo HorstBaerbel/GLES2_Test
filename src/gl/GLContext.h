@@ -33,12 +33,12 @@ public:
 	GLContext(Display * display, Window & window, GLXFBConfig & fbConfig);
 #endif
 
-	virtual bool makeCurrent();
-	virtual void destroy();
+	virtual bool makeCurrent() override;
+	virtual void destroy() override;
 
-	virtual bool isDirect() const;
+	virtual bool isDirect() const override;
 
-	virtual bool isValid() const;
+	virtual bool isValid() const override;
 
 	virtual ~GLContext();
 };

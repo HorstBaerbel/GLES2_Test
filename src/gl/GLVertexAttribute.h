@@ -45,8 +45,8 @@ public:
 	Bind attribute buffer to index and return following index.
 	\param[in] index The index this vertex attribute should use.
 	*/
-	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr);
-	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
+	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
 	~GLVertexAttribute();
 };

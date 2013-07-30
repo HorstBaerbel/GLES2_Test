@@ -42,8 +42,8 @@ public:
 
 	bool discard() const;
 
-	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr);
-	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
+	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
 	~GLFramebuffer();
 };

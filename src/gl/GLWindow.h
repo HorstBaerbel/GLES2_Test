@@ -33,15 +33,15 @@ public:
 #elif defined(__linux__)
 	GLWindow(const int width, const int height, std::string title, const bool fullScreen, const Format & windowFormat);
 #endif
-	virtual void setup();
+	virtual void setup() override;
 
 	static const Format getDefaultFormat();
-	virtual DisplayHandle getDisplayHandle() const;
+	virtual DisplayHandle getDisplayHandle() const override;
 
-    virtual void setSwapInterval(int interval) const;
-    virtual void swap() const;
+    virtual void setSwapInterval(int interval) const override;
+    virtual void swap() const override;
 
-    virtual void destroy();
+    virtual void destroy() override;
 
     virtual ~GLWindow();
 };

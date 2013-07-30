@@ -38,9 +38,9 @@ public:
 	GLsizei getNrOfPrimitivesRendered() const;
 	GLsizei getNrOfIndicesRendered() const;
 
-	bool prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr);
-	bool render(std::shared_ptr<ParameterBase> parameter = nullptr);
-	bool finishRender(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
+	bool render(std::shared_ptr<ParameterBase> parameter = nullptr) override;
+	bool finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
 	~GLVertexBuffer();
 };

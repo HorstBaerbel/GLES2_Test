@@ -28,8 +28,8 @@ public:
 	bool setWrapST(const GLenum wraps = GL_CLAMP_TO_EDGE, const GLenum wrapt = GL_CLAMP_TO_EDGE);
 	bool setPixels(const GLvoid * pixels = nullptr, const GLint level = 0, const GLsizei width = -1, GLsizei height = -1);
 
-	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr);
-	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr);
+	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
+	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
 	~GLTexture2D();
 };
