@@ -21,9 +21,9 @@ void GLVertexBuffer::addAttribute(std::shared_ptr<GLVertexAttributeBase> attribu
 		throw GLVertexBufferException("VertexBuffer::addAttribute - Attribute has role INDEX. Use setIndices!");
 	}
 	//check if attribute with same role already exists
-	std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(attribute->getAttributeRole());
+	auto ait = attributes.find(attribute->getAttributeRole());
 	if (ait != attributes.cend()) {
-		throw GLVertexBufferException("VertexBuffer::addAttribute - Attribute with role " + std::to_string((_ULonglong)attribute->getAttributeRole()) + " already exists!");
+		throw GLVertexBufferException("VertexBuffer::addAttribute - Attribute with role " + std::to_string((long long)attribute->getAttributeRole()) + " already exists!");
 	}
 	attributes[attribute->getAttributeRole()] = attribute;
 	//mark VBO as valid once we have some vertices
@@ -88,13 +88,13 @@ GLsizei GLVertexBuffer::getNrOfIndicesRendered() const
 	}
 	else {
 		//we have no indices, use vertex count of attribute VERTEX0 or VERTEX1
-		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX0);
+		auto ait = attributes.find(GLVertexAttributeBase::VERTEX0);
 		if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX0).enabled) {
 			return ait->second->getElementCount();
 		}
 		else {
 			//not found, try vertex 1
-			std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX1);
+			auto ait = attributes.find(GLVertexAttributeBase::VERTEX1);
 			if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX1).enabled) {
 				return ait->second->getElementCount();
 			}
@@ -115,13 +115,13 @@ GLsizei GLVertexBuffer::getNrOfPrimitivesRendered() const
 	}
 	else {
 		//we have no indices, use vertex count of attribute VERTEX0 or VERTEX1
-		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX0);
+		auto ait = attributes.find(GLVertexAttributeBase::VERTEX0);
 		if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX0).enabled) {
 			count = ait->second->getElementCount();
 		}
 		else {
 			//not found, try vertex 1
-			std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.find(GLVertexAttributeBase::VERTEX1);
+			auto ait = attributes.find(GLVertexAttributeBase::VERTEX1);
 			if (ait != attributes.cend() && attributeMap->getAttributeInfo(GLVertexAttributeBase::VERTEX1).enabled) {
 				count = ait->second->getElementCount();
 			}
@@ -196,13 +196,11 @@ bool GLVertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 	//no change in vertex buffer or initialization, but the VBOs or indices or attribute map may have changed
 	if (!changed) {
 		//check if any of the vertex buffers has changed
-		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.cbegin();
-		while (ait != attributes.cend()) {
+		for (auto ait = attributes.cbegin(); ait != attributes.cend(); ++ait) {
 			if (ait->second->hasChanged()) {
 				changed = true;
 				break;
 			}
-			++ait;
 		}
 		//check if the vertex indices have changed
 		if (!changed && indices && indices->hasChanged()) {
@@ -219,13 +217,11 @@ bool GLVertexBuffer::prepareRender(std::shared_ptr<ParameterBase> parameter)
 		nrOfIndices = getNrOfIndicesRendered();
 		nrOfPrimitives = getNrOfPrimitivesRendered();
 		//bind all vertex attribute buffers to the correpsonding index in the attribute map
-		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.cbegin();
-		while (ait != attributes.cend()) {
+		for (auto ait = attributes.cbegin(); ait != attributes.cend(); ++ait) {
 			const GLVertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(ait->second->getAttributeRole());
 			if (attributeInfo.enabled) {
 				ait->second->bind(attributeInfo.index);
 			}
-			++ait;
 		}
 		//mark the attribute map as not changed
 		attributeMap->setChanged(false);
@@ -264,11 +260,10 @@ bool GLVertexBuffer::finishRender(std::shared_ptr<ParameterBase> parameter)
 		glContext->glBindVertexArray(0);
 	}
 	else {
-		std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>>::const_iterator ait = attributes.cbegin();
-		while (ait != attributes.cend()) {
-			const GLVertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(ait->second->getAttributeRole());
+		for (auto aIt = attributes.cbegin(); aIt != attributes.cend(); ++aIt) {
+			const GLVertexAttributeMap::AttributeInfo attributeInfo = attributeMap->getAttributeInfo(aIt->second->getAttributeRole());
 			if (attributeInfo.enabled) {
-				ait->second->unbind(attributeInfo.index);
+				aIt->second->unbind(attributeInfo.index);
 			}
 		}
 		if (indices) {

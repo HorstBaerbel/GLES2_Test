@@ -139,13 +139,12 @@ bool GLFramebuffer::attach(const GLenum attachmentPoint, std::shared_ptr<GLTextu
 
 const GLFramebuffer::Attachment & GLFramebuffer::getAttachment(const GLenum attachmentPoint) const
 {
-	std::vector<Attachment>::const_iterator ait = attachments.cbegin();
-	while(ait != attachments.cend()) {
-		if (ait->point == attachmentPoint) {
-			return (*ait);
+    for (auto aIt = attachments.cbegin(); aIt != attachments.cend(); ++aIt) {
+		if (aIt->point == attachmentPoint) {
+			return (*aIt);
 		}
 	}
-	throw GLFrameBufferException("GLFramebuffer::getAttachment - No attachment at attachment point " + std::to_string((_ULonglong)attachmentPoint) + "!");
+	throw GLFrameBufferException("GLFramebuffer::getAttachment - No attachment at attachment point " + std::to_string((long long)attachmentPoint) + "!");
 }
 
 GLsizei GLFramebuffer::getWidth() const

@@ -24,7 +24,7 @@ unsigned int Timing::getTimeMsui()
 #if defined(WIN32) || defined(_WIN32)
 	__declspec(align(16)) LARGE_INTEGER counter;
 	QueryPerformanceCounter(&counter);
-	return ((1000 * counter.QuadPart) / instance->frequency.QuadPart);
+	return (unsigned int)((1000 * counter.QuadPart) / instance->frequency.QuadPart);
 #elif defined(__linux__)
 	timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
@@ -52,7 +52,7 @@ unsigned long Timing::getTimeUsul()
 #if defined(WIN32) || defined(_WIN32)
 	__declspec(align(16)) LARGE_INTEGER counter;
 	QueryPerformanceCounter(&counter);
-	return ((1000000 * counter.QuadPart) / instance->frequency.QuadPart);
+	return (unsigned int)((1000000 * counter.QuadPart) / instance->frequency.QuadPart);
 #elif defined(__linux__)
 	timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);

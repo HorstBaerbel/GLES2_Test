@@ -156,10 +156,8 @@ void ContextBase::getExtensions()
 	}
     //dump extensions to stdout
     std::cout << "GL Extensions available: " << std::endl;
-    std::vector<std::string>::const_iterator sit = extensions.begin();
-    while(sit != extensions.end()) {
+    for (auto sit = extensions.begin(); sit != extensions.end(); ++sit) {
         std::cout << *sit << " ";
-        sit++;
     }
     std::cout << std::endl;
 }
@@ -189,8 +187,7 @@ bool ContextBase::isExtensionAvailable(const std::string & extensionName) const
 	std::string lower1 = extensionName;
 	std::transform(lower1.begin(), lower1.end(), lower1.begin(), ::tolower);
 	//search in extensions
-    std::vector<std::string>::const_iterator sit = extensions.begin();
-    while(sit != extensions.end()) {
+    for (auto sit = extensions.cbegin(); sit != extensions.cend(); ++sit) {
 		//convert extension to lowercase
 		std::string lower0 = *sit;
 		std::transform(lower0.begin(), lower0.end(), lower0.begin(), ::tolower);
@@ -198,7 +195,6 @@ bool ContextBase::isExtensionAvailable(const std::string & extensionName) const
         if (lower0 == lower1) {
 			return true;
 		}
-		sit++;
     }
 	return false;
 }
@@ -227,14 +223,11 @@ bool ContextBase::getBindings()
 	bool result = true;
 
 	//clear all function pointers to null first
-	std::vector<Binding>::const_iterator bit = bindings.cbegin();
-    while (bit != bindings.cend()) {
+    for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
 		*(bit->adressOfFunctionPointer) = nullptr;
-		++bit;
 	}
 	//try to get function pointer now. rewind iterator.
-    bit = bindings.cbegin();
-    while (bit != bindings.cend()) {
+    for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
         //get function bindings here, depending on OS and OpenGL system
 #if defined(WIN32) || defined(_WIN32)
 		void * adress = (void *)wglGetProcAddress(bit->nameOfFunction);
@@ -251,7 +244,6 @@ bool ContextBase::getBindings()
 		else {
 			result = false;
 		}
-        ++bit;
 	}
 #if defined(__linux__)
 	//if we  get here in linux and there are still function pointers null try to load them again using dlopen/dlsym
@@ -260,14 +252,12 @@ bool ContextBase::getBindings()
 		void * dlHandle = dlopen(nullptr, RTLD_LAZY);
 		if (dlHandle != nullptr) {
 			//iterate through all bindings again. rewind iterator.
-			bit = bindings.cbegin();
-            while (bit != bindings.cend()) {
+            for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
 				//if the function pointer is still null, try to load it again
 				if (*(bit->adressOfFunctionPointer) == nullptr) {
 					//get symbol adress from DLL
 					*(bit->adressOfFunctionPointer) = (void (GLAPIENTRYP)(void))dlsym(dlHandle, bit->nameOfFunction);
 				}
-				++bit;
 			}
 			//finally close DLL again
 			dlclose(dlHandle);
@@ -277,13 +267,11 @@ bool ContextBase::getBindings()
 	//now check all functions again for nullptrs. assume it all worked...
 	result = true;
 	//rewind iterator
-    bit = bindings.cbegin();
-    while (bit != bindings.cend()) {
+    for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
 		if (*(bit->adressOfFunctionPointer) == nullptr) {
 			std::cout << "Failed to bind OpenGL function \"" << bit->nameOfFunction << "\"!" << std::endl;
 			result = false;
 		}
-		++bit;
 	}
 
 	return result;
@@ -403,14 +391,14 @@ GLuint ContextBase::createShaderFromFile(const std::string & vertexFile, const s
         //read vertex code
         std::string vertexCode;
         vertexHandle.seekg(0, std::ios::end);
-        vertexCode.resize(vertexHandle.tellg());
+        vertexCode.resize((size_t)vertexHandle.tellg());
         vertexHandle.seekg(0, std::ios::beg);
         vertexHandle.read(&vertexCode[0], vertexCode.size());
         vertexHandle.close();
         //read fragment code
         std::string fragmentCode;
         fragmentHandle.seekg(0, std::ios::end);
-        fragmentCode.resize(fragmentHandle.tellg());
+        fragmentCode.resize((size_t)fragmentHandle.tellg());
         fragmentHandle.seekg(0, std::ios::beg);
         fragmentHandle.read(&fragmentCode[0], fragmentCode.size());
         fragmentHandle.close();

@@ -28,7 +28,7 @@ const GLVertexAttributeBase::ElementTypeInfo & GLVertexAttributeBase::getElement
 
 GLVertexAttributeMap::AttributeInfo GLVertexAttributeMap::getAttributeInfo(GLVertexAttributeBase::AttributeRole role) const
 {
-	std::map<GLVertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.find(role);
+	auto ait = attributeMap.find(role);
 	if (ait != attributeMap.cend()) {
 		return ait->second;
 	}
@@ -40,20 +40,16 @@ GLVertexAttributeMap::AttributeInfo GLVertexAttributeMap::getAttributeInfo(GLVer
 
 GLVertexAttributeMap::AttributeInfo GLVertexAttributeMap::getAttributeInfo(const std::string & roleName) const
 {
-	std::map<GLVertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.cbegin();
-	while (ait != attributeMap.cend()) {
-		if (GLVertexAttributeBase::AttributeName[ait->first] == roleName) {
-			return ait->second;
+	for (auto aIt = attributeMap.cbegin(); aIt != attributeMap.cend(); ++aIt) {
+		if (GLVertexAttributeBase::AttributeName[aIt->first] == roleName) {
+			return aIt->second;
 		}
-		++ait;
 	}
 	//not found. try matching at least the start of the name
-	ait = attributeMap.cbegin();
-	while (ait != attributeMap.cend()) {
-		if (GLVertexAttributeBase::AttributeName[ait->first].find(roleName) == 0) {
-			return ait->second;
+	for (auto aIt = attributeMap.cbegin(); aIt != attributeMap.cend(); ++aIt) {
+		if (GLVertexAttributeBase::AttributeName[aIt->first].find(roleName) == 0) {
+			return aIt->second;
 		}
-		++ait;
 	}
 	throw GLVertexAttributeException("VertexAttribMap::getAttributeIndex - No attribute with name " + roleName + " found!");
 	return AttributeInfo();
@@ -63,15 +59,13 @@ void GLVertexAttributeMap::setAttributeIndex(GLVertexAttributeBase::AttributeRol
 {
 	//check if attribute with same index, but different role already exists
 	bool roleExists = false;
-	std::map<GLVertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.cbegin();
-	while (ait != attributeMap.cend()) {
-		if (ait->first != role && *ait->second.index == index) {
-			throw GLVertexAttributeException("VertexAttribMap::setAttributeIndex - Attribute with role " + GLVertexAttributeBase::AttributeName[role] + " is already at index " + std::to_string((_ULonglong)index) + "!");
+	for (auto aIt = attributeMap.cbegin(); aIt != attributeMap.cend(); ++aIt) {
+		if (aIt->first != role && *aIt->second.index == index) {
+			throw GLVertexAttributeException("VertexAttribMap::setAttributeIndex - Attribute with role " + GLVertexAttributeBase::AttributeName[role] + " is already at index " + std::to_string((long long)index) + "!");
 		}
-		else if (ait->first == role) {
+		else if (aIt->first == role) {
 			roleExists = true;
 		}
-		++ait;
 	}
 	//if the role doesn't exist, create the shared pointer to it
 	if (!roleExists) {
@@ -87,25 +81,21 @@ void GLVertexAttributeMap::setAttributeIndex(GLVertexAttributeBase::AttributeRol
 void GLVertexAttributeMap::setAttributeIndex(const std::string & roleName, const Parameter<GLuint> & index, bool enable)
 {
 	//try to find role with specified name
-	std::map<GLVertexAttributeBase::AttributeRole, AttributeInfo>::iterator ait = attributeMap.begin();
-	while (ait != attributeMap.end()) {
-		if (GLVertexAttributeBase::AttributeName[ait->first] == roleName) {
-			*ait->second.index = index;
+	for (auto aIt = attributeMap.begin(); aIt != attributeMap.end(); ++aIt) {
+		if (GLVertexAttributeBase::AttributeName[aIt->first] == roleName) {
+			*aIt->second.index = index;
 			changed = true;
 			return;
 		}
-		++ait;
 	}
 	//not found. try matching at least the start of the name
-	ait = attributeMap.begin();
-	while (ait != attributeMap.end()) {
-		if (GLVertexAttributeBase::AttributeName[ait->first].find(roleName) == 0) {
-			*ait->second.index = index;
-			ait->second.enabled = enable;
+	for (auto aIt = attributeMap.begin(); aIt != attributeMap.end(); ++aIt) {
+		if (GLVertexAttributeBase::AttributeName[aIt->first].find(roleName) == 0) {
+			*aIt->second.index = index;
+			aIt->second.enabled = enable;
 			changed = true;
 			return;
 		}
-		++ait;
 	}
 	throw GLVertexAttributeException("VertexAttribMap::setAttributeIndex - No attribute with name " + roleName + " found!");
 }
@@ -113,12 +103,10 @@ void GLVertexAttributeMap::setAttributeIndex(const std::string & roleName, const
 bool GLVertexAttributeMap::hasChanged() const
 {
 	if (!changed) {
-		std::map<GLVertexAttributeBase::AttributeRole, AttributeInfo>::const_iterator ait = attributeMap.cbegin();
-		while (ait != attributeMap.cend()) {
-			if (ait->second.index->hasChanged()) {
+		for (auto aIt = attributeMap.cbegin(); aIt != attributeMap.cend(); ++aIt) {
+			if (aIt->second.index->hasChanged()) {
 				return true;
 			}
-			++ait;
 		}
 	}
 	return changed;
