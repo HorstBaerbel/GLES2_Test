@@ -114,6 +114,9 @@ set(TARGET_HEADERS
     math/half3.h
     math/half4.h
     math/Transform2.h
+	model/Mesh.h
+	model/Model.h
+	model/ModelObj.h
 )
 set(TARGET_SOURCES
     Base.cpp
@@ -131,6 +134,8 @@ set(TARGET_SOURCES
     math/Math.cpp
     math/half.cpp
     math/Transform2.cpp
+	model/Mesh.cpp
+	model/ModelObj.cpp
 )
 
 #-------------------------------------------------------------------------------
@@ -172,6 +177,7 @@ endif()
 source_group("gl" REGULAR_EXPRESSION gl\\/.*)
 source_group("components" REGULAR_EXPRESSION components\\/.*)
 source_group("math" REGULAR_EXPRESSION math\\/.*)
+source_group("model" REGULAR_EXPRESSION model\\/.*)
 source_group("main" REGULAR_EXPRESSION ^[^\\/]*$) #dunno why this doesn't work
 
 #-------------------------------------------------------------------------------
