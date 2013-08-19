@@ -8,43 +8,74 @@
 
 //------------------------------------------------------------------------------------------------------
 
+/*!
+Type-dependent vertex attribute class.
+\note Don't forget to re-implment getElementTypeInfo for new template values...
+*/
 template <typename TYPE>
 class GLVertexAttribute : public GLVertexAttributeBase
 {
-	std::vector<TYPE> data;
-    std::shared_ptr<DataProxyBase> dataProxy;
-	size_t oldDataSize;
-	GLuint boundIndex;
-	GLuint glBufferId;
+	std::vector<TYPE> data; //!<Raw data contained in the buffer (either this or the \dataProxy must be filled).
+    std::shared_ptr<DataProxyBase> dataProxy; //!<Proxy class for copying/converting data (either this or \data must be filled).
+	size_t oldDataSize; //!<old raw size of data copied to the GPU last time. For optimization only.
+	GLuint boundIndex; //!<The slot index this attribute was last bound to.
+	GLuint glBufferId;  //!<The OpenGL VBO id.
 
 public:
 	GLVertexAttribute(std::shared_ptr<ContextBase> & context, GLVertexAttributeBase::AttributeRole role, GLenum usagePattern = GL_DYNAMIC_DRAW);
 
+    /*!
+    Append single element to VBO data.
+    \param[in] element Element to append.
+    */
 	void addElement(const TYPE & element);
+
+    /*!
+    Append elements to VBO data.
+    \param[in] elements Pointer to elements to append.
+    \param[in] count Number of elements to append from \elements.
+    */
 	void addElements(const TYPE * elements, size_t count);
 	//void addElements(const void * rawElements, size_t count);
 
+    /*!
+    Set single element in VBO data.
+    \param[in] element Element to append.
+    \param[in] index Index of element to set.
+    */
 	void setElement(const TYPE & element, const size_t index);
+
+    /*!
+    Set elements in VBO.
+    \param[in] elements Pointer to elements to set in VBO data.
+    \param[in] count Number of element to set from \elements.
+    */
 	void setElements(const TYPE * elements, size_t count);
+
+    /*!
+    Set elements in VBO.
+    \param[in] proxy Proxy object to get data from.
+    \note The whole VBO will be overwritten with whatever comes from \proxy!
+    */
     void setElements(const DataProxyBase & proxy);
 
+    /*!
+    Set proxy object that this VBO will get its data from.
+    \param[in] proxy Proxy object to get data from.
+    \note Data will be pulled in when \bind is called and the proxy or its data has been changed.
+    */
     void setProxy(std::shared_ptr<DataProxyBase> & proxy);
 
-	size_t getElementSize() const;
-	size_t getElementCount() const;
-	GLenum getElementGLType() const;
-	size_t getElementNrOfComponents() const;
+	size_t getElementSize() const override;
+	size_t getElementCount() const override;
+	GLenum getElementGLType() const override;
+	size_t getElementNrOfComponents() const override;
 
-	const void * getRawData() const;
-	size_t getRawSize() const;
+	const void * getRawData() const override;
+	size_t getRawSize() const override;
 
-	//Specific type trait functions for e.g. glVertexAttribPointer
-	const ElementTypeInfo & getElementTypeInfo() const;
+	const ElementTypeInfo & getElementTypeInfo() const override;
 
-	/*!
-	Bind attribute buffer to index and return following index.
-	\param[in] index The index this vertex attribute should use.
-	*/
 	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
@@ -82,7 +113,7 @@ inline void GLVertexAttribute<TYPE>::addElements(const TYPE * elements, size_t c
 	changed = true;
 }
 
-//TODO: This sucks and will probably most break very soon...
+//TODO: This sucks and will probably break very soon...
 /*template <typename TYPE>
 inline void GLVertexAttribute<TYPE>::addElements(const void * rawElements, size_t count)
 {
