@@ -15,7 +15,7 @@ public:
 	Add a mesh to the model.
 	\param[in] mesh The mesh to add to the model.
 	*/
-	void addMesh(std::shared_ptr<Mesh> & mesh);
+	virtual void addMesh(std::shared_ptr<Mesh> & mesh);
 
 	/*!
 	Generate normals for a mesh.
@@ -25,8 +25,9 @@ public:
 
 	/*!
 	Generate a set of tangents and bi-tangents for the mesh.
+    \param[in] perVertex Optional. Pass true to generate per-vertex tangents, else per-face tangents are generated
 	*/
-	void generateTangents();
+	void generateTangents(bool perVertex = true);
 
     virtual bool fromFile(const std::string & fileName);
     virtual bool fromString(const std::string & data);

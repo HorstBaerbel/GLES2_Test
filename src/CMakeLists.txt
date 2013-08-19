@@ -114,9 +114,10 @@ set(TARGET_HEADERS
     math/half3.h
     math/half4.h
     math/Transform2.h
-	model/Mesh.h
-	model/Model.h
-	model/ModelObj.h
+#	model/Material.h
+#	model/Mesh.h
+#	model/Model.h
+#	model/ModelObj.h
 )
 set(TARGET_SOURCES
     Base.cpp
@@ -134,8 +135,9 @@ set(TARGET_SOURCES
     math/Math.cpp
     math/half.cpp
     math/Transform2.cpp
-	model/Mesh.cpp
-	model/ModelObj.cpp
+#	model/Material.cpp
+#	model/Mesh.cpp
+#	model/ModelObj.cpp
 )
 
 #-------------------------------------------------------------------------------

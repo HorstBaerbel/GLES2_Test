@@ -70,19 +70,6 @@ Texture: "map_Ka filename" names a file containing a ambient texture map
 class ModelObj
 {
 public:
-    struct Material {
-        std::string library;
-        std::string name;
-        col4 ambient;
-        col4 diffuse;
-        col4 specular;
-        float alpha;
-        float shininess;
-        int model;
-
-        Material();
-    };
-
     enum PrimitiveType {POINTS = 0, LINES = 1, LINE_STRIP = 3, TRIANGLES = 4, QUADS = 7, POLYGON = 9}; //!<These correspond to the GL_ types
 
     struct Mesh {
@@ -100,11 +87,11 @@ public:
 
     struct Model {
         std::string name;
-        Vector3f * vertices;
+        vec3 * vertices;
         int nrOfVertices;
-        Vector3f * normals;
+        vec3 * normals;
         int nrOfNormals;
-        Vector3f * tangents;
+        vec3 * tangents;
         int nrOfTangents;
         void * texcoords;
         int nrOfTexCoords;

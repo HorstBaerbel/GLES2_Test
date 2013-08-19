@@ -11,6 +11,8 @@ class Mesh : public IGLObject, public IRenderableObject
 	std::vector<std::shared_ptr<GLVertexBuffer>> vertexBuffers;
 
 public:
+    enum PrimitiveType {POINTS = 0, LINES = 1, LINE_STRIP = 3, TRIANGLES = 4, QUADS = 7, POLYGON = 9};
+
     Mesh(std::shared_ptr<ContextBase> context, const std::string & name = "");
 
 	/*!
