@@ -7,6 +7,7 @@
 
 class ContextBase;
 
+//TODO: Use namespaces for all GL or ES objects!
 class IGLObject : public INamedObject
 {
 	IGLObject();

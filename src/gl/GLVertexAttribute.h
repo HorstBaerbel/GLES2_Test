@@ -10,7 +10,7 @@
 
 /*!
 Type-dependent vertex attribute class.
-\note Don't forget to re-implment getElementTypeInfo for new template values...
+\note Don't forget to re-implement getElementTypeInfo for new template values...
 */
 template <typename TYPE>
 class GLVertexAttribute : public GLVertexAttributeBase

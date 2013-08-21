@@ -12,7 +12,9 @@
 
 #include "ContextBase.h"
 
-
+/*!
+Desktop OpenGL context class. Uses WGL on Windows and GLX/X11 on Linux.
+*/
 class GLContext : public ContextBase
 {
 #if defined(WIN32) || defined(_WIN32)
@@ -22,14 +24,26 @@ class GLContext : public ContextBase
 	Display * xDisplay; //!<the X11 display we're rendering to
 	Window xWindow; //!<the X11 window we're rendering to
 	GLXContext context; //!<The GLX context used for rendering
-	int glxVersionMajor;
-	int glxVersionMinor;
+	int glxVersionMajor; //!<The major version number of the GLX context aquired.
+	int glxVersionMinor; //!<The minor version number of the GLX context aquired.
 #endif
 
 public:
 #if defined(WIN32) || defined(_WIN32)
+	/*!
+	Create Desktop OpenGL context.
+	\param[in] dc Device context of window to render to. This can be a real window or fullscreen.
+	\todo Throw exception if context creation fails.
+	*/
 	GLContext(HDC dc);
 #elif defined(__linux__)
+	/*!
+	Create Desktop OpenGL context.
+	\param[in] display Display handle to create context for.
+	\param[in] display Device context of window to render to. This can be a real window or fullscreen.
+	\param[in] fbConfig Framebuffer configuration of context.
+	\todo Throw exception if context creation fails.
+	*/
 	GLContext(Display * display, Window & window, GLXFBConfig & fbConfig);
 #endif
 
@@ -37,7 +51,6 @@ public:
 	virtual void destroy() override;
 
 	virtual bool isDirect() const override;
-
 	virtual bool isValid() const override;
 
 	virtual ~GLContext();

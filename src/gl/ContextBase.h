@@ -17,28 +17,45 @@
 #include "GLBase.h"
 
 
-//OpenGL context base class
+/*!
+OpenGL context base class. Derive from this to create system specific contexts, e.g. Desktop GL or ES.
+*/
 class ContextBase
 {
 protected:
-	int versionMajor; //!<OpenGL version information
-	int versionMinor; //!<OpenGL version information
-	std::vector<std::string> extensions;
+	int versionMajor; //!<OpenGL version information.
+	int versionMinor; //!<OpenGL version information.
+	std::vector<std::string> extensions; //!<List of OpenGL extension strings.
+
+	/*!
+	Get all extension strings from OpenGL context.
+	\note Call only with valid and current context. Writes to \extensions.
+	\todo Get OS-specific extensions too
+	*/
 	void getExtensions();
 
 	struct Binding {
-		void (GLAPIENTRYP * adressOfFunctionPointer)(); /*!<Pointer to where the function pointer is stored.*/
-		const char * nameOfFunction;                    /*!<Name of the function we're trying to bind;*/
-	};
-    static std::vector<Binding> bindings; /*!<Holds adresses of OpenGL functions and the names.*/
+		void (GLAPIENTRYP * adressOfFunctionPointer)(); //!<Pointer to where the function pointer is stored.
+		const std::string nameOfFunction;               //!<Name of the function we're trying to bind;
 
-    Binding make_binding(void (GLAPIENTRYP * adressOfFunctionPointer)(), const char * nameOfFunction) const;
+		Binding(void (GLAPIENTRYP * adressOfFuncPointer)(), const std::string & functionName) : adressOfFunctionPointer(adressOfFuncPointer), nameOfFunction(functionName) {	*adressOfFunctionPointer = nullptr;	}
+	};
+    std::vector<Binding> bindings; //!<Holds adresses of OpenGL functions and the names.
+
+	/*!
+	Get function bindings for all OpenGL functions in \bindings.
+	\return Returns true if ALL functions were sucessfully bound.
+	*/
 	bool getBindings();
 
+	/*!
+	Constructor should only (and must) be called by derived classes.
+	\note This sets up the \bindings vector.
+	*/
 	ContextBase();
 
 public:
-	//Function pointers for stuff missing in Windows OpenGL interface
+	//Function pointers for stuff missing in OS OpenGL interface
 	void (GLAPIENTRYP glActiveTexture)(GLenum texture);                 /*!<Activate a specific texture unit*/
 	//Function pointers to OpenGL shader functions.
 	GLuint (GLAPIENTRYP glCreateShader)(GLenum shaderType);             /*!<Function prototype for shader creation.*/
@@ -124,21 +141,62 @@ public:
     #endif
 #endif
 
+	/*!
+	Make this context current so all follwing OpenGL operations use it.
+	*/
 	virtual bool makeCurrent();
+
+	/*
+	Destroy context. Override this with the necessary functions to tear down the context.
+	*/
 	virtual void destroy();
 
+	/*!
+	Return major number of the OpenGL context version.
+	\return Returns the major number of the OpenGL context version.
+	*/
 	int getMajorVersion() const;
+
+	/*!
+	Return minor number of the OpenGL context version.
+	\return Returns the minor number of the OpenGL context version.
+	*/
 	int getMinorVersion() const;
+
+	/*!
+	Check if an OpenGL extension is supported.
+	\param[in] extensionName The name of the extension to check for (case-insensitive).
+	\return Returns true if the extension is supported.
+	\todo A bit of work, but it would be good to check if all necessary functions for that extension are actually bound...
+	*/
 	bool isExtensionAvailable(const std::string & extensionName) const;
+
+	/*!
+	Check if the context uses direct or indirect rendering.
+	\return Returns true if direct rendering is used. Always true on Windows platforms.
+	*/
 	virtual bool isDirect() const;
 
+	/*!
+	Check if this context has been set up correctly.
+	\return Returns true if the context is usable.
+	*/
 	virtual bool isValid() const;
 
+	//TODO: Move those to a shader class!!!
 	GLuint createShader(const std::string & vertexCode, const std::string & fragmentCode, std::string & errorString);
 	GLuint createShaderFromFile(const std::string & vertexFile, const std::string & fragmentFile, std::string & errorString);
 	const std::string getShaderError(const GLuint vertexHandle, const GLuint fragmentHandle, const GLuint programHandle);
 
+	/*!
+	Convert openGL error identifier to a readable representation using GLU.
+	\param[in] error The OpenGL error code retrieved via a glGetError() call.
+	\return Returns the string representation of the error.
+	*/
     static std::string glErrorToString(GLenum error);
 
+	/*
+	Destructor calls \destroy by default.
+	*/
     virtual ~ContextBase();
 };

@@ -12,6 +12,11 @@
 
 //------------------------------------------------------------------------------------------------------
 
+/*!
+Bundles vertex buffer objects with vertex attributes into a vertex array object.
+Holds an attribute map to enable/disable vertex attributes and map them to a specific slot index for a shader.
+Also and index buffer can be added for indexed rendering.
+*/
 class GLVertexBuffer : public IChangeableObject, public IRenderableObject, public IGLObject
 {
 	std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>> attributes; //!<Map from vertex attribute role to attribute data.

@@ -10,96 +10,94 @@
 	#include <dlfcn.h>
 #endif
 
-std::vector<ContextBase::Binding> ContextBase::bindings;
-
 
 ContextBase::ContextBase()
 	: versionMajor(1), versionMinor(0)
 {
 	if (bindings.size() <= 0) {
 		//set up list with function pointers
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glActiveTexture, "glActiveTexture"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glCreateShader, "glCreateShader"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glShaderSource, "glShaderSource"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glCompileShader, "glCompileShader"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glCreateProgram, "glCreateProgram"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glAttachShader, "glAttachShader"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glLinkProgram, "glLinkProgram"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUseProgram, "glUseProgram"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDetachShader, "glDetachShader"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDeleteShader, "glDeleteShader"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glValidateProgram, "glValidateProgram"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGetUniformLocation, "glGetUniformLocation"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform1f, "glUniform1f"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform2f, "glUniform2f"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform3f, "glUniform3f"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform4f, "glUniform4f"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform1fv, "glUniform1fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform2fv, "glUniform2fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform3fv, "glUniform3fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform4fv, "glUniform4fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform1i, "glUniform1i"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform2i, "glUniform2i"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform3i, "glUniform3i"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform4i, "glUniform4i"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform1iv, "glUniform1iv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform2iv, "glUniform2iv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform3iv, "glUniform3iv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniform4iv, "glUniform4iv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniformMatrix2fv, "glUniformMatrix2fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniformMatrix3fv, "glUniformMatrix3fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUniformMatrix4fv, "glUniformMatrix4fv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGetAttribLocation, "glGetAttribLocation"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBindAttribLocation, "glBindAttribLocation"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glVertexAttribPointer, "glVertexAttribPointer"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glEnableVertexAttribArray, "glEnableVertexAttribArray"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDisableVertexAttribArray, "glDisableVertexAttribArray"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDrawArrays, "glDrawArrays"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDrawArrays, "glDrawArraysEXT"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glPatchParameteri, "glPatchParameteri"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glPatchParameterfv, "glPatchParameterfv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDeleteProgram, "glDeleteProgram"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGetShaderiv, "glGetShaderiv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGetShaderInfoLog, "glGetShaderInfoLog"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGetProgramiv, "glGetProgramiv"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGetProgramInfoLog, "glGetProgramInfoLog"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glClampColor, "glClampColor"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGenFramebuffers, "glGenFramebuffers"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDeleteFramebuffers, "glDeleteFramebuffers"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBindFramebuffer, "glBindFramebuffer"));
-		//bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glFramebufferTexture, "glFramebufferTexture"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glFramebufferTexture2D, "glFramebufferTexture2D"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBlitFramebuffer, "glBlitFramebuffer"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glCheckFramebufferStatus, "glCheckFramebufferStatus"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glActiveTexture, "glActiveTexture"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glCreateShader, "glCreateShader"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glShaderSource, "glShaderSource"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glCompileShader, "glCompileShader"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glCreateProgram, "glCreateProgram"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glAttachShader, "glAttachShader"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glLinkProgram, "glLinkProgram"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUseProgram, "glUseProgram"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDetachShader, "glDetachShader"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteShader, "glDeleteShader"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glValidateProgram, "glValidateProgram"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGetUniformLocation, "glGetUniformLocation"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform1f, "glUniform1f"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform2f, "glUniform2f"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform3f, "glUniform3f"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform4f, "glUniform4f"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform1fv, "glUniform1fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform2fv, "glUniform2fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform3fv, "glUniform3fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform4fv, "glUniform4fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform1i, "glUniform1i"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform2i, "glUniform2i"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform3i, "glUniform3i"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform4i, "glUniform4i"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform1iv, "glUniform1iv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform2iv, "glUniform2iv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform3iv, "glUniform3iv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniform4iv, "glUniform4iv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniformMatrix2fv, "glUniformMatrix2fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniformMatrix3fv, "glUniformMatrix3fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUniformMatrix4fv, "glUniformMatrix4fv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGetAttribLocation, "glGetAttribLocation"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindAttribLocation, "glBindAttribLocation"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glVertexAttribPointer, "glVertexAttribPointer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glEnableVertexAttribArray, "glEnableVertexAttribArray"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDisableVertexAttribArray, "glDisableVertexAttribArray"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDrawArrays, "glDrawArrays"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDrawArrays, "glDrawArraysEXT"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glPatchParameteri, "glPatchParameteri"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glPatchParameterfv, "glPatchParameterfv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteProgram, "glDeleteProgram"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGetShaderiv, "glGetShaderiv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGetShaderInfoLog, "glGetShaderInfoLog"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGetProgramiv, "glGetProgramiv"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGetProgramInfoLog, "glGetProgramInfoLog"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glClampColor, "glClampColor"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGenFramebuffers, "glGenFramebuffers"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteFramebuffers, "glDeleteFramebuffers"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindFramebuffer, "glBindFramebuffer"));
+		//bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glFramebufferTexture, "glFramebufferTexture"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glFramebufferTexture2D, "glFramebufferTexture2D"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBlitFramebuffer, "glBlitFramebuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glCheckFramebufferStatus, "glCheckFramebufferStatus"));
 #ifdef USE_OPENGL_ES
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDiscardFramebuffer, "glDiscardFramebuffer"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDiscardFramebuffer, "glDiscardFramebufferEXT"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDiscardFramebuffer, "glDiscardFramebuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDiscardFramebuffer, "glDiscardFramebufferEXT"));
 #endif
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGenBuffers, "glGenBuffers"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDeleteBuffers, "glDeleteBuffers"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBindBuffer, "glBindBuffer"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBufferData, "glBufferData"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBuffer"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glUnmapBuffer, "glUnmapBuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGenBuffers, "glGenBuffers"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteBuffers, "glDeleteBuffers"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindBuffer, "glBindBuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBufferData, "glBufferData"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUnmapBuffer, "glUnmapBuffer"));
 
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGenVertexArrays, "glGenVertexArrays"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDeleteVertexArrays, "glDeleteVertexArrays"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBindVertexArray, "glBindVertexArray"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGenVertexArrays, "glGenVertexArrays"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteVertexArrays, "glDeleteVertexArrays"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindVertexArray, "glBindVertexArray"));
 #ifdef USE_OPENGL_ES
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glGenVertexArrays, "glGenVertexArraysOES"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glDeleteVertexArrays, "glDeleteVertexArraysOES"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glBindVertexArray, "glBindVertexArrayOES"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGenVertexArrays, "glGenVertexArraysOES"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteVertexArrays, "glDeleteVertexArraysOES"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindVertexArray, "glBindVertexArrayOES"));
 #endif
 #if defined(WIN32) || defined(_WIN32)
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&wglGetSwapInterval, "wglGetSwapIntervalEXT"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&wglSwapInterval, "wglSwapIntervalEXT"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&wglGetSwapInterval, "wglGetSwapIntervalEXT"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&wglSwapInterval, "wglSwapIntervalEXT"));
 		//try to find wglChoosePixelFormat as both regular and ARB function (needed for some systems)
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&wglChoosePixelFormat, "wglChoosePixelFormat"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&wglChoosePixelFormat, "wglChoosePixelFormatARB"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&wglChoosePixelFormat, "wglChoosePixelFormat"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&wglChoosePixelFormat, "wglChoosePixelFormatARB"));
 #elif defined(__linux__)
 	#ifdef USE_OPENGL_DESKTOP
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glXSwapInterval, "glXSwapInterval"));
-		bindings.push_back(make_binding((void (GLAPIENTRYP*)(void))&glXCreateContextAttribs, "glXCreateContextAttribs"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glXSwapInterval, "glXSwapInterval"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glXCreateContextAttribs, "glXCreateContextAttribs"));
 	#endif
 #endif
 	}
@@ -169,6 +167,7 @@ bool ContextBase::makeCurrent()
 
 void ContextBase::destroy()
 {
+	//The goggles. They do nothing...
 }
 
 int ContextBase::getMajorVersion() const
@@ -209,33 +208,24 @@ bool ContextBase::isValid() const
     return false;
 }
 
-ContextBase::Binding ContextBase::make_binding(void (GLAPIENTRYP * adressOfFunctionPointer)(), const char * nameOfFunction) const
-{
-    ContextBase::Binding b;
-    b.adressOfFunctionPointer = adressOfFunctionPointer;
-	*b.adressOfFunctionPointer = nullptr;
-    b.nameOfFunction = nameOfFunction;
-    return b;
-}
-
 bool ContextBase::getBindings()
 {
 	bool result = true;
 
 	//clear all function pointers to null first
-    for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
+    for (auto bit = bindings.begin(); bit != bindings.end(); ++bit) {
 		*(bit->adressOfFunctionPointer) = nullptr;
 	}
 	//try to get function pointer now. rewind iterator.
-    for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
+    for (auto bit = bindings.begin(); bit != bindings.end(); ++bit) {
         //get function bindings here, depending on OS and OpenGL system
 #if defined(WIN32) || defined(_WIN32)
-		void * adress = (void *)wglGetProcAddress(bit->nameOfFunction);
+		void * adress = (void *)wglGetProcAddress(bit->nameOfFunction.c_str());
 #elif defined(__linux__)
 		#ifdef USE_OPENGL_DESKTOP
-			void * adress = (void *)glXGetProcAddress((const GLubyte *)bit->nameOfFunction);
+			void * adress = (void *)glXGetProcAddress((const GLubyte *)bit->nameOfFunction.c_str());
 		#else
-			void * adress = (void *)eglGetProcAddress(bit->nameOfFunction);
+			void * adress = (void *)eglGetProcAddress(bit->nameOfFunction.c_str());
 		#endif
 #endif
 		if (adress != nullptr) {
@@ -252,11 +242,11 @@ bool ContextBase::getBindings()
 		void * dlHandle = dlopen(nullptr, RTLD_LAZY);
 		if (dlHandle != nullptr) {
 			//iterate through all bindings again. rewind iterator.
-            for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
+            for (auto bit = bindings.begin(); bit != bindings.end(); ++bit) {
 				//if the function pointer is still null, try to load it again
 				if (*(bit->adressOfFunctionPointer) == nullptr) {
 					//get symbol adress from DLL
-					*(bit->adressOfFunctionPointer) = (void (GLAPIENTRYP)(void))dlsym(dlHandle, bit->nameOfFunction);
+					*(bit->adressOfFunctionPointer) = (void (GLAPIENTRYP)(void))dlsym(dlHandle, bit->nameOfFunction.c_str());
 				}
 			}
 			//finally close DLL again
