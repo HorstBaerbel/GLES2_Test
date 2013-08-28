@@ -29,17 +29,16 @@ public:
 	*/
 	void generateTangents(bool perVertex = true);
 
-    virtual bool fromFile(const std::string & fileName);
-    virtual bool fromString(const std::string & data);
-    //virtual bool fromRaw(const char * data, const size_t size);
-
-    virtual bool toFile(const std::string & fileName);
-    virtual const std::string toString();
-    //bool toRaw(char * data, size_t & size);
-
 	virtual bool prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	virtual bool render(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	virtual bool finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
-    ~Model();
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const Model & model);
+    friend std::istream & operator>>(std::istream & is, Model & model);
+
+    virtual bool fromString(const std::string & data);
+    virtual const std::string toString();
+
+    virtual ~Model();
 };

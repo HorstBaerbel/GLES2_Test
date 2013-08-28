@@ -34,10 +34,12 @@ public:
     virtual bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	virtual bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
-    virtual bool fromFile(const std::string & fileName);
-    virtual bool fromString(const std::string & data);
-    //virtual bool fromRaw(const char * data, const size_t size);
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const Material & material);
+    friend std::istream & operator>>(std::istream & is, Material & material);
 
-    virtual bool toFile(const std::string & fileName);
+    virtual bool fromString(const std::string & data);
     virtual const std::string toString();
+
+    virtual ~Material();
 };

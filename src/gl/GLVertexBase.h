@@ -27,7 +27,7 @@ public:
 	}; //!<Information about the elements contained in a vertex buffer. Primarily used for rendering.
 
 protected:
-	AttributeRole attributeRole; //!<The role of the vertex attribute. Can be used to check for duplucates etc.
+	AttributeRole attributeRole; //!<The role of the vertex attribute. Can be used to check for duplicates etc.
 	GLenum glUsage; //!<Usage pattern of the vertex attribute.
 	ElementTypeInfo elementTypeInfo; //!<Information about the binary data contained in the vertex attribute.
 
@@ -96,6 +96,12 @@ public:
     \returns The size of the raw binary data of the attribute.
     */
 	virtual size_t getRawSize() const = 0;
+
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const GLVertexAttributeBase & attribute);
+    friend std::istream & operator>>(std::istream & is, GLVertexAttributeBase & attribute);
+
+    virtual GLVertexAttributeBase();
 };
 
 //------------------------------------------------------------------------------------------------------
@@ -163,6 +169,10 @@ public:
 	void setAttributeIndex(const std::string & roleName, const Parameter<GLuint> & index, bool enable = true);
 
 	bool hasChanged() const;
+
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const GLVertexAttributeMap & map);
+    friend std::istream & operator>>(std::istream & is, GLVertexAttributeMap & map);
 };
 
 //------------------------------------------------------------------------------------------------------

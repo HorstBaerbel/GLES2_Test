@@ -102,6 +102,10 @@ public:
 	bool render(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	bool finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const GLVertexBuffer & buffer);
+    friend std::istream & operator>>(std::istream & is, GLVertexBuffer & buffer);
+
 	~GLVertexBuffer();
 };
 

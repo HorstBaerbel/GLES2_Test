@@ -36,5 +36,12 @@ public:
 	virtual bool render(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	virtual bool finishRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
-    ~Mesh(void);
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const Mesh & mesh);
+    friend std::istream & operator>>(std::istream & is, Mesh & mesh);
+
+    virtual bool fromString(const std::string & data);
+    virtual const std::string toString();
+
+    ~Mesh();
 };

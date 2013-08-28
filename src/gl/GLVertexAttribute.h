@@ -79,6 +79,10 @@ public:
 	bool bind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	bool unbind(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 
+    //Stream stuff
+    friend std::ostream & operator<<(std::ostream & os, const GLVertexAttribute<TYPE> & attribute);
+    friend std::istream & operator>>(std::istream & is, GLVertexAttribute<TYPE> & attribute);
+
 	~GLVertexAttribute();
 };
 
