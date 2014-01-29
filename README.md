@@ -11,7 +11,7 @@ My code is in the public domain. Do what you want with it, though mentioning whe
 
 The `src/CMake/FindEigen3.cmake` script is from the [Eigen3](http://eigen.tuxfamily.org) package `Eigen/cmake/FindEigen3.cmake` and is thus probably LGPL. In doubt check the Eigen3 library license.
 
-The other CMake scripts were snatched from the [OGRE3D]() repo [here](https://bitbucket.org/sinbad/ogre/src/0bba4f7cdb95/CMake/Packages/FindFreeImage.cmake?at=default) and seem to be Public Domain too.
+The other CMake scripts were snatched from the [OGRE3D](http://www.ogre3d.org/) repo [here](https://bitbucket.org/sinbad/ogre/src/0bba4f7cdb95/CMake/Packages/FindFreeImage.cmake?at=default) and seem to be Public Domain too.
 
 Building
 ========
@@ -19,7 +19,7 @@ Building
 **Use CMake:**
 <pre>
 cd GLES2_Test
-cmake .
+cmake src
 make
 </pre>
 
@@ -30,7 +30,12 @@ You might also need OpenGL. If you don't have `/usr/include/GL/gl.h` and `libGL`
 sudo apt-get libgl1-mesa-dev
 ```
 
-You might also need Eigen3. Try installing the Eigen3 development package with:
+For turning OpenGL errors into human-readable strings GLU is used. If you don't have `/usr/include/GL/glu.h` and `libGLU` try installing the MESA development package with:
+```
+sudo apt-get libglu1-mesa-dev
+```
+
+You will also need Eigen3. Try installing the Eigen3 development package with:
 ```
 sudo apt-get libeigen3-dev
 ```
