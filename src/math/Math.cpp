@@ -3,7 +3,7 @@
 #include <math.h>
 
 
-inline float Math::acos(float x)
+float Math::acos(float x)
 {
 #ifdef USE_LIBRARY_FUNCTIONS
 	return ::acosf(x);
@@ -12,7 +12,7 @@ inline float Math::acos(float x)
 #endif
 }
 
-inline float Math::asin(float x)
+float Math::asin(float x)
 {
 #ifdef USE_LIBRARY_FUNCTIONS
 	return ::asinf(x);
@@ -21,19 +21,19 @@ inline float Math::asin(float x)
 #endif
 }
 
-inline float Math::atan(float x)
+float Math::atan(float x)
 {
 	return ::atanf(x);
 }
 
-inline float Math::atan2(float y, float x)
+float Math::atan2(float y, float x)
 {
 	return ::atan2f(y, x);
 	//public double aTan2(double y, double x) {	double coeff_1 = Math.PI / 4d;	double coeff_2 = 3d * coeff_1;	double abs_y = Math.abs(y);	double angle;	if (x >= 0d) {		double r = (x - abs_y) / (x + abs_y);		angle = coeff_1 - coeff_1 * r;	} else {		double r = (x + abs_y) / (abs_y - x);		angle = coeff_2 - coeff_1 * r;	}	return y < 0d ? -angle : angle;}
 }
 
 //from: http://www.devmaster.net/forums/showthread.php?t=5784
-inline float Math::cos(float x)
+float Math::cos(float x)
 {
 #ifdef USE_LIBRARY_FUNCTIONS
 	return ::cosf(x);
@@ -45,15 +45,15 @@ inline float Math::cos(float x)
 	x -= (z - 25165824.0f);
 	//low precision approximation: return 4.0f * (x - x * fabs(x));
 	//higher precision path
-    float y = x - x * fabs(x);
+    float y = x - x * abs(x);
 	//next iteration for higher precision
 	const float Q = 3.1f;
 	const float P = 3.6f;
-	return y * (Q + P * fabs(y));
+	return y * (Q + P * abs(y));
 #endif
 }
 
-inline float Math::sin(float x)
+float Math::sin(float x)
 {
 #ifdef USE_LIBRARY_FUNCTIONS
 	return ::sinf(x);
@@ -65,65 +65,65 @@ inline float Math::sin(float x)
 	x -= (z - 25165824.0f);
 	//low precision approximation: return 4.0f * (x - x * fabs(x));
 	//higher precision path
-    float y = x - x * fabs(x);
+    float y = x - x * abs(x);
 	//next iteration for higher precision
 	const float Q = 3.1f;
 	const float P = 3.6f;
-	return y * (Q + P * fabs(y));
+	return y * (Q + P * abs(y));
 #endif
 }
 
-inline float Math::tan(float x)
+float Math::tan(float x)
 {
 	return ::tanhf(x);
 }
 
-inline float Math::cosh(float x)
+float Math::cosh(float x)
 {
 	return ::coshf(x);
 }
 
-inline float Math::sinh(float x)
+float Math::sinh(float x)
 {
 	return ::sinhf(x);
 }
 
-inline float Math::tanh(float x)
+float Math::tanh(float x)
 {
 	return ::tanhf(x);
 }
 
-inline float Math::exp(float x)
+float Math::exp(float x)
 {
 	return ::expf(x);
 }
 
-inline float Math::log(float x)
+float Math::log(float x)
 {
 	return ::logf(x);
 }
 
-inline float Math::log10(float x)
+float Math::log10(float x)
 {
 	return ::log10f(x);
 }
 
-inline float Math::modf(float x, float * y)
+float Math::modf(float x, float * y)
 {
 	return ::modff(x, y);
 }
 
-inline float Math::pow(float x, float y)
+float Math::pow(float x, float y)
 {
 	return ::powf(x, y);
 }
 
-inline float Math::sqrt(float x)
+float Math::sqrt(float x)
 {
 	return ::sqrtf(x);
 }
 
-inline float Math::invsqrt(float x)
+float Math::invsqrt(float x)
 {
 #ifdef USE_LIBRARY_FUNCTIONS
 	return 1.0f / ::sqrtf(x);
@@ -138,7 +138,7 @@ inline float Math::invsqrt(float x)
 #endif
 }
 
-inline float Math::abs(float x)
+float Math::abs(float x)
 {
 #ifdef USE_LIBRARY_FUNCTIONS
 	return ::fabs(x);
@@ -148,37 +148,37 @@ inline float Math::abs(float x)
 #endif
 }
 
-inline float Math::ceil(float x)
+float Math::ceil(float x)
 {
 	return ::ceilf(x);
 }
 
-inline int Math::ceili(float x)
+int Math::ceili(float x)
 {
 	return (int)::ceilf(x);
 }
 
-inline float Math::floor(float x)
+float Math::floor(float x)
 {
 	return ::floorf(x);
 }
 
-inline int Math::floori(float x)
+int Math::floori(float x)
 {
 	return (int)::floorf(x);
 }
 
-inline float Math::trunc(float x)
+float Math::trunc(float x)
 {
 	return (float)((int)x);
 }
 
-inline int Math::trunci(float x)
+int Math::trunci(float x)
 {
 	return (int)x;
 }
 
-inline float Math::fmod(float x, float y)
+float Math::fmod(float x, float y)
 {
 	return ::fmodf(x, y);
 }

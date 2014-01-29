@@ -14,12 +14,16 @@ int main(int argc, char **argv)
 		std::cout << "Setup failed!" << std::endl;
 		return -1;
 	}
+    //retrieve display hande from window
+    DisplayHandle display = window->getDisplayHandle();
 
-	/*XEvent event;
-	bool done = False;
+	XEvent event;
+	bool done = false;
 
 	//wait for events
 	while (!done) {
+        //render scene
+        interactive();
 		//handle the events in the queue
 		while (XPending(display) > 0) {
 			XNextEvent(display, &event);
@@ -28,49 +32,40 @@ int main(int argc, char **argv)
 					if (event.xexpose.count != 0) {
 						break;
 					}
-					renderGL();
 					break;
 				case ConfigureNotify:
 					//call resizeGL only if our window-size changed
-					if ((event.xconfigure.width != GLWin.width) || (event.xconfigure.height != GLWin.height)) {
+					/*if ((event.xconfigure.width != GLWin.width) || (event.xconfigure.height != GLWin.height)) {
 						width = event.xconfigure.width;
 						height = event.xconfigure.height;
 						resizeGL(width, height);
-					}
+					}*/
 					break;
 					//exit in case of a mouse button press
 				case ButtonPress:
-					done = True;
+					done = true;
 					break;
 				case KeyPress:
 					if (XLookupKeysym(&event.xkey, 0) == XK_Escape) {
-						done = True;
+						done = true;
 					}
-					if (XLookupKeysym(&event.xkey,0) == XK_F11) {
+					/*if (XLookupKeysym(&event.xkey,0) == XK_F11) {
 						destroyWindow();
 						fullscreen = !fullscreen;
 						createWindow();
-					}
+					}*/
 					break;
 				case ClientMessage:
 					if (strcmp(XGetAtomName(display, event.xclient.message_type), "WM_PROTOCOLS") == 0) {
-						done = True;
+						done = true;
 					}
 					break;
 				default:
 					break;
 			}
 		}
-		renderGL();
 		//usleep(1000);
 	}
-
-destroyWindow();
-
-return 0;*/
-
-	//run benchmark
-	benchmark();
 
 	return 0;
 }

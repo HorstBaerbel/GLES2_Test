@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdlib.h>
 
 
 //"Half" float value conversion routines.

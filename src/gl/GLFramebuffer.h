@@ -26,7 +26,7 @@ class GLFramebuffer : public IBindableObject, public IChangeableObject, public I
 #endif
 
 public:
-	GLFramebuffer(std::shared_ptr<ContextBase> & c);
+	GLFramebuffer(std::shared_ptr<ContextBase> & context);
 
 	bool attach(const GLenum attachmentPoint, std::shared_ptr<GLTexture2D> & texture);
 	//bool attach(const GLenum attachmentPoint, std::shared_ptr<GLTextureDepth> & texture);

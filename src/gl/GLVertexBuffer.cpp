@@ -9,9 +9,11 @@ GLVertexBuffer::GLVertexBuffer(std::shared_ptr<ContextBase> & context, GLenum re
 	if (glContext->glGenVertexArrays != nullptr) {
 		glContext->glGenVertexArrays(1, &glArrayId);
 	}
+#ifdef USE_OPENGL_DESKTOP
 	if (primitiveMode == GL_PATCHES && glContext->glPatchParameteri == nullptr) {
 		throw GLVertexBufferException("VertexBuffer - Render mode is GL_PATCHES, but glPatchParameteri is not available!");
 	}
+#endif
 }
 
 void GLVertexBuffer::addAttribute(std::shared_ptr<GLVertexAttributeBase> attribute)
@@ -241,9 +243,9 @@ bool GLVertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 	if (glContext->glPatchParameteri != nullptr && primitiveMode == GL_PATCHES) {
 		glContext->glPatchParameteri(GL_PATCH_VERTICES, nrOfVerticesPerPatch);
 	}
-#endif
 	//enable vertex arrays
 	glEnableClientState(GL_VERTEX_ARRAY);
+#endif
 	if (indices) {
 		glDrawElements(primitiveMode, nrOfPrimitives, indices->getElementGLType(), nullptr);
 	}

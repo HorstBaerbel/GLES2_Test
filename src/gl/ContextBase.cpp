@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm> //for std::transform
-#include <gl/glu.h> //for gluErrorString
+#include <GL/glu.h> //for gluErrorString
 
 #if defined(__linux__)
 	#include <dlfcn.h>
@@ -78,7 +78,9 @@ ContextBase::ContextBase()
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindBuffer, "glBindBuffer"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBufferData, "glBufferData"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBufferOES"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUnmapBuffer, "glUnmapBuffer"));
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUnmapBuffer, "glUnmapBufferOES"));
 
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGenVertexArrays, "glGenVertexArrays"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteVertexArrays, "glDeleteVertexArrays"));

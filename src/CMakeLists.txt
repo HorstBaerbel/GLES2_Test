@@ -185,12 +185,12 @@ source_group("main" REGULAR_EXPRESSION ^[^\\/]*$) #dunno why this doesn't work
 #-------------------------------------------------------------------------------
 #define libraries and directories
 if(DEFINED BCMHOST)
-    link_directories(
+#    link_directories(
 #        ${CMAKE_CURRENT_BINARY_DIR}
-        "/opt/vc/lib"
-    )
+#        "/opt/vc/lib"
+#    )
     LIST(APPEND TARGET_LIBRARIES
-        bcm_host
+        /opt/vc/lib/libbcm_host.so
         EGL
         ${OPENGLES2_LIBRARIES}
     )
@@ -199,6 +199,11 @@ else()
         LIST(APPEND TARGET_LIBRARIES
             winmm
         )
+    else()
+        LIST(APPEND TARGET_LIBRARIES
+            dl
+            Xxf86vm
+        )	
     endif()
     if(${GLSystem} MATCHES "Desktop OpenGL")
         LIST(APPEND TARGET_LIBRARIES

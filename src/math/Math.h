@@ -10,6 +10,11 @@ Author: bim.overbohm@googlemail.com
 #include <fstream>
 #include <string>
 
+#ifdef Success
+    //Both Eigen and X11 define a symbol "Success". Undef it otherwise compilation fails.
+    #undef Success
+#endif
+
 #include <Eigen/Eigen>
 #include <Eigen/StdVector> //this needs to be included if fixed-size Eigen values are being used in std containers
 
@@ -53,41 +58,41 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(quat)
 //#define M_SQRT1_2  0.707106781186547524401 //sqrt(1/2)
 
 //Standard math.h functions
-namespace Math 
+namespace Math
 {
     const float epsilon = 0.00001f;
 
-	extern inline float acos(float x);
-	extern inline float asin(float x);
-	extern inline float atan(float x);
-	extern inline float atan2(float y, float x);
-	extern inline float cos(float x);
-	extern inline float sin(float x);
-	extern inline float tan(float x);
+	float acos(float x);
+	float asin(float x);
+	float atan(float x);
+	float atan2(float y, float x);
+	float cos(float x);
+	float sin(float x);
+	float tan(float x);
 
-	extern inline float cosh(float x);
-	extern inline float sinh(float x);
-	extern inline float tanh(float x);
+	float cosh(float x);
+	float sinh(float x);
+	float tanh(float x);
 
-	extern inline float exp(float x);
-	extern inline float log(float x);
-	extern inline float log10(float x);
-	extern inline float modf(float x, float * y);
+	float exp(float x);
+	float log(float x);
+	float log10(float x);
+	float modf(float x, float * y);
 
-	extern inline float pow(float x, float y);
-	extern inline float sqrt(float x);
-	extern inline float invsqrt(float x);
+	float pow(float x, float y);
+	float sqrt(float x);
+	float invsqrt(float x);
 
-	extern inline float abs(float x);
-	extern inline float ceil(float x);
-	extern inline int ceili(float x);
-	extern inline float floor(float x);
-	extern inline int floori(float x);
-	extern inline float trunc(float x);
-	extern inline int trunci(float x);
-	extern inline float fmod(float x, float y);
+	float abs(float x);
+	float ceil(float x);
+	int ceili(float x);
+	float floor(float x);
+	int floori(float x);
+	float trunc(float x);
+	int trunci(float x);
+	float fmod(float x, float y);
 
-	extern inline float rand(int * seed); //returns value between -1 and 1.
+	float rand(int * seed); //returns value between -1 and 1.
 };
 
 //----- some conversion helpers ----------------------------------------------------------------------------------------
@@ -172,3 +177,4 @@ bool is_approx_relative(const Eigen::MatrixBase<Derived> & x, const Eigen::Matri
 {
     return y != 0 && Derived(Derived(x.array() / y.array()).cwiseAbs() - 1).cwiseAbs() < epsilon;
 }
+

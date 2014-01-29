@@ -30,8 +30,8 @@
 #endif
 
 
-GLFramebuffer::GLFramebuffer(std::shared_ptr<ContextBase> & c)
-	: IGLObject(c), glId(0)
+GLFramebuffer::GLFramebuffer(std::shared_ptr<ContextBase> & context)
+	: IGLObject(context), glId(0)
 {
 #ifdef USE_OPENGL_ES
     //create statics on first run

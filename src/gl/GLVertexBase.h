@@ -101,7 +101,7 @@ public:
     friend std::ostream & operator<<(std::ostream & os, const GLVertexAttributeBase & attribute);
     friend std::istream & operator>>(std::istream & is, GLVertexAttributeBase & attribute);
 
-    virtual GLVertexAttributeBase();
+    //virtual ~GLVertexAttributeBase();
 };
 
 //------------------------------------------------------------------------------------------------------

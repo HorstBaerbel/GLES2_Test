@@ -23,4 +23,5 @@
 	#define GL_BGR 0x80E1
 	#define GLAPIENTRYP *
 	#define GL_WRITE_ONLY GL_WRITE_ONLY_OES
+        #define GL_HALF_FLOAT 0x8D61
 #endif

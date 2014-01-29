@@ -1,5 +1,7 @@
 #include "Transform2.h"
 
+using namespace Math;
+
 
 Transform2::Transform2(const vec2 & translation, float rotation, const vec2 & scaleFactor)
 	: changed(true), translate(translation), rotate(rotation), scale(scaleFactor)
@@ -44,11 +46,11 @@ void Transform2::update()
 {
 	if (changed) {
 		//re-create transformation matrix. usually the order is scale * rotate * translate
-		matrix(0) = scale[0] * Math::cos(rotate);
-		matrix(1) = scale[1] * -Math::sin(rotate);
+		matrix(0) = scale[0] * cos(rotate);
+		matrix(1) = scale[1] * -sin(rotate);
 		matrix(2) = 0.0f;
-		matrix(3) = scale[0] * Math::sin(rotate);
-		matrix(4) = scale[1] * Math::cos(rotate);
+		matrix(3) = scale[0] * sin(rotate);
+		matrix(4) = scale[1] * cos(rotate);
 		matrix(5) = 0.0f;
 		matrix(6) = translate[0];
 		matrix(7) = translate[1];

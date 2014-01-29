@@ -223,8 +223,10 @@ inline bool GLVertexAttribute<TYPE>::bind(std::shared_ptr<ParameterBase> paramet
     if (dataProxy) {
         changed = dataProxy->hasChanged();
     }
+#ifdef USE_OPENGL_DESKTOP
 	//enable VBOs
 	glEnableClientState(GL_VERTEX_ARRAY);
+#endif
 	//check if this is an index array to an actual vertex attribute
 	if (INDEX == attributeRole) {
 		glContext->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glBufferId);
