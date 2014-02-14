@@ -1,8 +1,10 @@
 #pragma once
 
+#include <map>
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 
 #if defined(WIN32) || defined(_WIN32)
 	#include <Windows.h>
@@ -16,12 +18,30 @@
 
 #include "GLBase.h"
 
+#define CHECK_OPENGL_ERRORS //Define this to check for OpenGL errors. If this is not defined glErrorOccurred() will be a nop.
+#define USE_OPENGL_ERROR_CALLBACK //Define this to use the glDebugMessageCallback functionality available with OpenGL 4.3+ if available.
 
 /*!
 OpenGL context base class. Derive from this to create system specific contexts, e.g. Desktop GL or ES.
 */
 class ContextBase
 {
+	static std::map<GLenum, std::string> m_ErrorMap; //!<Map holding human-readable string for opengl error codes.
+    static std::shared_ptr<std::ostream> m_Out; //!<Output stream the error messages will be output to. Default is std::cout.
+    static bool m_OutputErrors; //!<When set to true OpenGL errors are output to @sa m_Out. Default is off.
+
+    /*
+    Set the output stream all OpenGL errors go to.
+    \param[in] out New output stream for OpenGL errors.
+    */
+	static void setErrorOutputStream(std::shared_ptr<std::ostream> out);
+
+    /*
+    Toggle OpenGL error output.
+    \param[in] enable Pass true to output OpenGL errors to m_Out.
+    */
+    static void setOutputErrors(bool enable);
+
 protected:
 	int versionMajor; //!<OpenGL version information.
 	int versionMinor; //!<OpenGL version information.
@@ -194,6 +214,23 @@ public:
 	\return Returns the string representation of the error.
 	*/
     static std::string glErrorToString(GLenum error);
+
+    /*
+    Check if an OpenGL is pending and prints it to @sa m_Out if @sa m_OutputErrors is set, then removes it from the error stack.
+    \return Returns true if an OpenGL error happened.
+    \note Use the macro @sa glErrorOccurred.
+    */
+	bool glErrorHappened(const std::string file, int line);
+
+#ifdef CHECK_OPENGL_ERRORS
+    #define glErrorOccurred() (glErrorHappened(__FILE__, __LINE__))
+#else
+    #define glErrorOccurred() (false)
+#endif
+
+#ifdef USE_OPENGL_ERROR_CALLBACK
+	static void GLAPIENTRY openglErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, void * userParam);
+#endif
 
 	/*
 	Destructor calls \destroy by default.

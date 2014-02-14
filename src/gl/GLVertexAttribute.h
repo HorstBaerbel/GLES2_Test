@@ -90,7 +90,7 @@ public:
 
 template <typename TYPE>
 inline GLVertexAttribute<TYPE>::GLVertexAttribute(std::shared_ptr<ContextBase> & context, GLVertexAttributeBase::AttributeRole role,GLenum usagePattern)
-	: GLVertexAttributeBase(context, role, usagePattern), oldDataSize(0), boundIndex(0), glBufferId(-1)
+	: GLVertexAttributeBase(context, role, usagePattern), dataProxy(nullptr), oldDataSize(0), boundIndex(0), glBufferId(-1)
 {
 	elementTypeInfo = getElementTypeInfo();
 	glContext->makeCurrent();

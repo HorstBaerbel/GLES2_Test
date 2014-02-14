@@ -13,6 +13,9 @@ LIST(APPEND CMAKE_MODULE_PATH
 #set up OpenGL system variable
 set(GLSystem "Desktop OpenGL" CACHE STRING "The OpenGL system to be used")
 set_property(CACHE GLSystem PROPERTY STRINGS "Desktop OpenGL" "OpenGL ES 2.0")
+#set up OpenGL window sytem variable
+set(GLWindowSystem "" CACHE STRING "The OpenGL window system to be used")
+set_property(CACHE GLWindowSystem PROPERTY STRINGS "WGL" "EGL" "GLX")
 
 #-------------------------------------------------------------------------------
 #check if we're running on Raspberry Pi
@@ -20,13 +23,34 @@ MESSAGE("Looking for bcm_host.h")
 if(EXISTS "/opt/vc/include/bcm_host.h")
     MESSAGE("bcm_host.h found")
     set(BCMHOST found)
-    set(GLSystem "OpenGL ES 2.0")
 else()
     MESSAGE("bcm_host.h not found")
 endif()
 
-#finding necessary packages
 #-------------------------------------------------------------------------------
+#Set OpenGL variables and compiler flags depending on system
+if(DEFINED BCMHOST)
+    set(GLSystem "OpenGL ES 2.0")
+    set(GLWindowSystem "EGL")
+    add_definitions(-DUSE_OPENGL_EGL)
+    add_definitions(-DUSE_OPENGL_ES)
+else()
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+        set(GLSystem "Desktop OpenGL")
+        set(GLWindowSystem "WGL")
+        add_definitions(-DUSE_OPENGL_WGL)
+        add_definitions(-DUSE_OPENGL_DESKTOP)
+    endif()
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(GLSystem "Desktop OpenGL")
+        set(GLWindowSystem "GLX")
+        add_definitions(-DUSE_OPENGL_GLX)
+        add_definitions(-DUSE_OPENGL_DESKTOP)
+    endif()
+endif()
+
+#-------------------------------------------------------------------------------
+#finding necessary packages
 if(${GLSystem} MATCHES "Desktop OpenGL")
     find_package(OpenGL REQUIRED)
 else()
@@ -55,14 +79,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
             message(SEND_ERROR "You need at least G++ 4.7 to compile!")
     endif()
     #set up compiler flags for GCC
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2") #support C++11 for std::, optimize
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")  #strip binary
-endif()
-
-if(${GLSystem} MATCHES "Desktop OpenGL")
-    add_definitions(-DUSE_OPENGL_DESKTOP)
-else()
-    add_definitions(-DUSE_OPENGL_ES)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g3") #support C++11, debug
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")        #optimize
+    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")  #strip binary
 endif()
 
 #-------------------------------------------------------------------------------

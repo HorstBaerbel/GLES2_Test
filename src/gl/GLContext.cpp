@@ -3,6 +3,9 @@
 #include <iostream>
 
 
+int (*GLContext::X11OriginalHandler)(Display *, XErrorEvent *) = nullptr;
+
+
 #if defined(WIN32) || defined(_WIN32)
 GLContext::GLContext(HDC dc)
 	: hDC(nullptr), hRC(nullptr)
@@ -51,20 +54,35 @@ GLContext::GLContext(Display * display, Window & window, GLXFBConfig & fbConfig)
 		std::cout << "Failed to create a render context!" << std::endl;
 		return;
 	}
+    else {
+        std::cout << "Created default OpenGL context." << std::endl;
+    }
 	//get function bindings now. we need this for glXCreateContextAttribs
 	if (!getBindings()) {
 		std::cout << "Failed to get all function bindings!" << std::endl;
 	}
 	//check if glXCreateContextAttribs is available
 	if (glXCreateContextAttribs != nullptr) {
+        //sync to Xserver first
+        XSync(display, False);
+        //set up an X error handler, because glXCreateContextAttribs might b0rk out
+        X11OriginalHandler = XSetErrorHandler(X11ErrorHandler);
 		//create a GL >= 3.0 context
+        //TODO: GLX_CONTEXT_DEBUG_BIT_ARB
 		int attribs[] = { GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, 0, 0};
-		GLXContext gl3Context = glXCreateContextAttribs(display, fbConfig, 0, true, &attribs[0]);
-		//if that worked, destroy the 2.1 context
+		GLXContext gl3Context = glXCreateContextAttribs(display, fbConfig, nullptr, True, &attribs[0]);
+        //reset error handler first
+        XSetErrorHandler(X11OriginalHandler);
+		//if that worked, destroy the 2.x context
 		if (gl3Context != nullptr) {
-			glXDestroyContext(display, gl2Context); //We can destroy the GL 2.0 context once the 3.0 one has bene created
+            std::cout << "Created OpenGL 3.x context. Destroying old one." << std::endl;
+			glXDestroyContext(display, gl2Context); //We can destroy the GL 2.x context once the 3.0 one has been created
+            context = gl3Context;
 		}
-		context = gl3Context;
+        else {
+            std::cout << "Failed to create an OpenGL 3.x context. Using OpenGL 2.x context." << std::endl;
+            context = gl2Context;
+        }
 		//get function bindings again now, as we have a new context
 		if (!getBindings()) {
 			std::cout << "Failed to get all function bindings!" << std::endl;
@@ -75,8 +93,8 @@ GLContext::GLContext(Display * display, Window & window, GLXFBConfig & fbConfig)
 	}
 	//try to make render context current
 	if (!glXMakeCurrent(display, window, context)) {
+        std::cout << "Failed to make render context current!" << std::endl;
 		destroy();
-		std::cout << "Failed to make render context current!" << std::endl;
 		return;
 	}
 	//get extensions
@@ -84,6 +102,24 @@ GLContext::GLContext(Display * display, Window & window, GLXFBConfig & fbConfig)
 	//setup members
 	xDisplay = display;
 	xWindow = window;
+}
+
+int GLContext::X11ErrorHandler(Display * display, XErrorEvent * event)
+{
+    switch (event->error_code) {
+        case GLXBadContext:
+        case GLXBadFBConfig:
+        case GLXBadProfile:
+        case BadRequest:
+        case BadMatch:
+        case BadValue:
+        case BadAlloc:
+            //ignore those errors as the came from glXCreateContextAttribs and can be ignored...
+            return 0;
+        default:
+            //delegate all other errors to the original handler...
+            return 0;//(X11OriginalHandler(display, event));
+    }
 }
 #endif
 

@@ -26,6 +26,9 @@ class GLContext : public ContextBase
 	GLXContext context; //!<The GLX context used for rendering
 	int glxVersionMajor; //!<The major version number of the GLX context aquired.
 	int glxVersionMinor; //!<The minor version number of the GLX context aquired.
+
+    static int (*X11OriginalHandler)(Display *, XErrorEvent *); //!<The original X11 error handler used before we set out own.
+    static int X11ErrorHandler(Display * display, XErrorEvent * event); //!<Replacement error handler when calling glXCreateContextAttribs.
 #endif
 
 public:

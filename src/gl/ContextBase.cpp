@@ -4,16 +4,37 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm> //for std::transform
-#include <GL/glu.h> //for gluErrorString
 
 #if defined(__linux__)
 	#include <dlfcn.h>
 #endif
 
 
+std::map<GLenum, std::string> ContextBase::m_ErrorMap;
+std::shared_ptr<std::ostream> ContextBase::m_Out(&std::cout, [](std::ostream *) {});
+bool ContextBase::m_OutputErrors = false;
+
+
 ContextBase::ContextBase()
 	: versionMajor(1), versionMinor(0)
 {
+    //fill map with human-readable string for OpenGL errors
+	if (m_ErrorMap.size() <= 0) {
+		//map is empty. fill it.
+		m_ErrorMap[GL_INVALID_ENUM] = "Invalid enum";
+		m_ErrorMap[GL_INVALID_VALUE] = "Invalid value";
+		m_ErrorMap[GL_INVALID_OPERATION] = "Invalid operation";
+		m_ErrorMap[GL_STACK_OVERFLOW] = "Stack overflow";
+		m_ErrorMap[GL_STACK_UNDERFLOW] = "Stack underflow";
+		m_ErrorMap[GL_OUT_OF_MEMORY] = "Out of memory";
+		m_ErrorMap[GL_INVALID_FRAMEBUFFER_OPERATION] = "Invalid framebuffer operation";
+#ifdef GL_TABLE_TOO_LARGE
+		m_ErrorMap[GL_TABLE_TOO_LARGE] = "Table too large";
+#else
+		m_ErrorMap[(GLenum)0x8031] = "Table too large";
+#endif
+	}
+    //fill OpenGL function binding map
 	if (bindings.size() <= 0) {
 		//set up list with function pointers
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glActiveTexture, "glActiveTexture"));
@@ -78,10 +99,11 @@ ContextBase::ContextBase()
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindBuffer, "glBindBuffer"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBufferData, "glBufferData"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBuffer"));
-		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBufferOES"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUnmapBuffer, "glUnmapBuffer"));
+#ifdef USE_OPENGL_ES
+		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glMapBuffer, "glMapBufferOES"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glUnmapBuffer, "glUnmapBufferOES"));
-
+#endif
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glGenVertexArrays, "glGenVertexArrays"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glDeleteVertexArrays, "glDeleteVertexArrays"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glBindVertexArray, "glBindVertexArray"));
@@ -99,7 +121,9 @@ ContextBase::ContextBase()
 #elif defined(__linux__)
 	#ifdef USE_OPENGL_DESKTOP
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glXSwapInterval, "glXSwapInterval"));
+        bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glXSwapInterval, "glXSwapIntervalARB"));
 		bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glXCreateContextAttribs, "glXCreateContextAttribs"));
+        bindings.push_back(Binding((void (GLAPIENTRYP*)(void))&glXCreateContextAttribs, "glXCreateContextAttribsARB"));
 	#endif
 #endif
 	}
@@ -260,6 +284,7 @@ bool ContextBase::getBindings()
 	result = true;
 	//rewind iterator
     for (auto bit = bindings.cbegin(); bit != bindings.cend(); ++bit) {
+		//std::cout << bit->nameOfFunction << " @ " << std::hex << (bit->adressOfFunctionPointer) << std::endl;
 		if (*(bit->adressOfFunctionPointer) == nullptr) {
 			std::cout << "Failed to bind OpenGL function \"" << bit->nameOfFunction << "\"!" << std::endl;
 			result = false;
@@ -402,9 +427,42 @@ GLuint ContextBase::createShaderFromFile(const std::string & vertexFile, const s
 
 std::string ContextBase::glErrorToString(GLenum error)
 {
-    std::stringstream stream;
-    stream << (const char *)gluErrorString(error) << " (0x" << std::hex << error << ")";
-    return stream.str();
+	if (error != GL_NO_ERROR) {
+		//try finding the string in the map
+		auto mapIt = m_ErrorMap.find(error);
+		std::stringstream stream;
+		if (mapIt != m_ErrorMap.cend()) {
+			stream << mapIt->second << " (0x" << std::hex << error << ")";
+		}
+		else {
+			//Unknown OpenGL error
+			stream << "Unknown error (0x" << std::hex << error << ")";
+		}
+		return stream.str();
+	}
+	return "";
+}
+
+bool ContextBase::glErrorHappened(const std::string file, int line)
+{
+	GLenum error = GL_NO_ERROR;
+    GLenum previousError = GL_NO_ERROR;
+	while ((error = glGetError()) != GL_NO_ERROR) {
+        if (error != previousError && m_OutputErrors) {
+		    *m_Out << "OpenGL Error: " << glErrorToString(error) << " in " << file << ":" << line << std::endl;
+        }
+        previousError = error;
+	}
+}
+
+void ContextBase::setErrorOutputStream(std::shared_ptr<std::ostream> out)
+{
+	m_Out = out;
+}
+
+void ContextBase::setOutputErrors(bool enable)
+{
+    m_OutputErrors = enable;
 }
 
 ContextBase::~ContextBase()

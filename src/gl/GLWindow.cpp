@@ -219,7 +219,7 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 		return;
 	}
 	else {
-		std::cout << "GLX is supported." << std::endl;
+		std::cout << "GLX is supported. ";
 	}
 
 	//framebuffer configs were added in GLX version 1.3 so check for that
@@ -231,6 +231,9 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 	if (major < 1 || (major == 1 && minor < 3)) {
 		std::cout << "GLX version 1.3 or higher needed!" << std::endl;
 		return;
+	}
+    else {
+		std::cout << "GLX version is " << major << "." << minor << std::endl;
 	}
 
 	//check for XF86 video mode extension
@@ -311,7 +314,7 @@ findModesAgain:
 		iAttributes[21] = GLX_WINDOW_BIT;
 	}
         if (format.samplesPerPixel > 1) {
-		iAttributes[22] = GLX_SAMPLE_BUFFERS_ARB;
+		iAttributes[22] = GLX_SAMPLE_BUFFERS;
 		iAttributes[23] = GL_TRUE;
 		iAttributes[24] = GLX_SAMPLES;
 		iAttributes[25] = format.samplesPerPixel;
@@ -357,16 +360,16 @@ findModesAgain:
 	//use best configuration found
 	GLXFBConfig bestFbConfig = fbConfig[bestFbIndex];
 	std::cout << "Using config #" << bestFbIndex << "." << std::endl;
-	//free the FBConfig list allocated by glXChooseFBConfig()
-	XFree(fbConfig);
-	//get a visual for that configuration
-	XVisualInfo * visual = glXGetVisualFromFBConfig(xDisplay, bestFbConfig);
-
-	//write our config into our format information
+    //write our config into our format information
 	int sampleBuffers, samples;
 	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_SAMPLE_BUFFERS, &sampleBuffers);
 	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_SAMPLES, &samples);
 	format.samplesPerPixel = (sampleBuffers >= 1 ? samples : 1);
+	//free the FBConfig list allocated by glXChooseFBConfig()
+	XFree(fbConfig);
+
+	//get a visual for that configuration
+	XVisualInfo * visual = glXGetVisualFromFBConfig(xDisplay, bestFbConfig);
 
 	//create window attributes
 	Window xRootWindow = RootWindow(xDisplay, xScreenId);

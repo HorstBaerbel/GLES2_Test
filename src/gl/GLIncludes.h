@@ -14,6 +14,18 @@
 	#include <GLES2/gl2ext.h>
 #endif
 
+#ifdef USE_OPENGL_GLX
+    #ifndef GLXBadContext
+        #define GLXBadContext 0
+    #endif
+    #ifndef GLXBadFBConfig
+        #define GLXBadFBConfig 9
+    #endif
+    #if !defined(GLXBadProfile)
+        #define GLXBadProfile 13
+    #endif
+#endif
+
 #ifdef USE_OPENGL_ES
 	//Some GL headers lack some defines we use here...
 	#define GL_READ_FRAMEBUFFER 0x8CA8
