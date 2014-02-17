@@ -329,7 +329,7 @@ findModesAgain:
 		return;
 	}
 	else {
-		std::cout << fbCount << " suitable framebuffer modes found. ";
+		std::cout << fbCount << " suitable framebuffer configurations found. " << std::endl;
 	}
 	//find the best config if we're using multisampling
 	int bestFbIndex = 0;
@@ -359,12 +359,20 @@ findModesAgain:
 	}
 	//use best configuration found
 	GLXFBConfig bestFbConfig = fbConfig[bestFbIndex];
-	std::cout << "Using config #" << bestFbIndex << "." << std::endl;
-    //write our config into our format information
+	//write our config into our format information
 	int sampleBuffers, samples;
 	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_SAMPLE_BUFFERS, &sampleBuffers);
 	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_SAMPLES, &samples);
 	format.samplesPerPixel = (sampleBuffers >= 1 ? samples : 1);
+	//dump to console
+	int redBits, greenBits, blueBits, alphaBits, depthBits, stencilBits;
+	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_RED_SIZE, &redBits);
+	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_BLUE_SIZE, &greenBits);
+	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_GREEN_SIZE, &blueBits);
+	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_ALPHA_SIZE, &alphaBits);
+	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_DEPTH_SIZE, &depthBits);
+	glXGetFBConfigAttrib(xDisplay, bestFbConfig, GLX_STENCIL_SIZE, &stencilBits);
+	std::cout << "Using config #" << bestFbIndex << " - R" << redBits << "G" << greenBits << "B" << blueBits << "A" << alphaBits << ", D" << depthBits << "S" << stencilBits << ", buffers " << sampleBuffers << ", samples " << samples << "." << std::endl;
 	//free the FBConfig list allocated by glXChooseFBConfig()
 	XFree(fbConfig);
 
