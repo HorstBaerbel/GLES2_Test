@@ -30,11 +30,6 @@ You might also need OpenGL. If you don't have `/usr/include/GL/gl.h` and `libGL`
 sudo apt-get libgl1-mesa-dev
 ```
 
-For turning OpenGL errors into human-readable strings GLU is used. If you don't have `/usr/include/GL/glu.h` and `libGLU` try installing the MESA development package with:
-```
-sudo apt-get libglu1-mesa-dev
-```
-
 You will also need Eigen3. Try installing the Eigen3 development package with:
 ```
 sudo apt-get libeigen3-dev

@@ -47,6 +47,8 @@ ESWindow::ESWindow(const int width, const int height, std::string title, const b
 	nativeWindow.width = width;
 	nativeWindow.height = height;
 	vc_dispmanx_update_submit_sync(dispman_update);
+	
+	eglWindow = (EGLNativeWindowType)nativeWindow;
 
 	eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -109,7 +111,7 @@ ESWindow::ESWindow(const int width, const int height, std::string title, const b
 	}
 
 	//initialize EGL
-	if (!eglInitialize(eglDisplay, &eglMajorVersion, &eglMinorVersion)) {
+	if (eglInitialize(eglDisplay, &eglMajorVersion, &eglMinorVersion) == EGL_FALSE) {
 		destroy();
 		std::cout << "Failed to initialize EGL!" <<std::endl;
 		return;
@@ -164,6 +166,13 @@ ESWindow::ESWindow(const int width, const int height, std::string title, const b
 			std::cout << ", no multisampling!" << std::endl;
 		}
 	}
+	
+	//bind the OpenGL API to the EGL
+	if(eglBindAPI(EGL_OPENGL_ES_API) == EGL_FALSE) {
+		destroy();
+		std::cout << "Failed to bind the OpenGL API to EGL!" <<std::endl;
+		return;
+	}
 
 	//create an EGL surface
 	//NOTE: We COULD actually pass the attributes EGL_RENDER_BUFFER, EGL_SINGLE_BUFFER here to get single buffering
@@ -212,12 +221,16 @@ DisplayHandle ESWindow::getDisplayHandle() const
 
 void ESWindow::setSwapInterval(int interval) const
 {
-    eglSwapInterval(eglDisplay, interval);
+	if (eglSurface != nullptr) {
+		eglSwapInterval(eglDisplay, interval);
+	}
 }
 
 void ESWindow::swap() const
 {
-    eglSwapBuffers(eglDisplay, eglSurface);
+	if (eglSurface != nullptr) {
+		eglSwapBuffers(eglDisplay, eglSurface);
+	}
 }
 
 void ESWindow::destroy()

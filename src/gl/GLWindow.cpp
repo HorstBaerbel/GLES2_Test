@@ -470,9 +470,13 @@ void GLWindow::setup()
 void GLWindow::swap() const
 {
 #if defined(WIN32) || defined(_WIN32)
-    SwapBuffers(hDC);
+	if (hDC != nullptr)
+		SwapBuffers(hDC);
+	}
 #elif defined(__linux__)
-	glXSwapBuffers(xDisplay, xWindow);
+	if (xWindow != 0) {
+		glXSwapBuffers(xDisplay, xWindow);
+	}
 #endif
 }
 
@@ -532,11 +536,11 @@ DisplayHandle GLWindow::getDisplayHandle() const
 void GLWindow::setSwapInterval(int interval) const
 {
 #if defined(WIN32) || defined(_WIN32)
-	if (context->wglSwapInterval != nullptr) {
+	if (context != nullptr && context->wglSwapInterval != nullptr) {
 		context->wglSwapInterval(interval);
 	}
 #elif defined(__linux__)
-    if (context->glXSwapInterval != nullptr) {
+    if (context != nullptr && xWindow != 0 && context->glXSwapInterval != nullptr) {
 		context->glXSwapInterval(xDisplay, xWindow, interval);
 	}
 #endif

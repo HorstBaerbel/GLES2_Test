@@ -97,6 +97,10 @@ bool setup()
 	window->setSwapInterval(0);
 
 	context = window->getContext();
+	
+	if (context == nullptr) {
+		std::cout << "Failed to get an OpenGL context!" << std::endl;
+	}
 
 	//check if we have the needed extensions
 /*	if (!context->isExtensionAvailable("GL_EXT_framebuffer_object") && !context->isExtensionAvailable("GL_ARB_framebuffer_object")) {
