@@ -100,6 +100,7 @@ bool setup()
 	
 	if (context == nullptr) {
 		std::cout << "Failed to get an OpenGL context!" << std::endl;
+		return false;
 	}
 
 	//check if we have the needed extensions

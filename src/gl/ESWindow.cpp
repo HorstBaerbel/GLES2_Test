@@ -48,7 +48,7 @@ ESWindow::ESWindow(const int width, const int height, std::string title, const b
 	nativeWindow.height = height;
 	vc_dispmanx_update_submit_sync(dispman_update);
 	
-	eglWindow = (EGLNativeWindowType)nativeWindow;
+	eglWindow = (EGLNativeWindowType)&nativeWindow;
 
 	eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -189,7 +189,7 @@ ESWindow::ESWindow(const int width, const int height, std::string title, const b
 	if (!context->isValid()) {
 		destroy();
 		std::cout << "Failed to create an EGL context!" <<std::endl;
-        	return;
+        return;
 	}
 
 	std::cout << "Sucessfully created " << w << "x" << h << " window" << std::endl;
