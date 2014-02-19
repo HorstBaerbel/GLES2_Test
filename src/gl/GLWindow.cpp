@@ -294,6 +294,9 @@ findModesAgain:
 
 	//build framebuffer config
 	int iAttributes[] = {
+		//GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
+		//GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+		GLX_VISUAL_ID, True,
 		GLX_X_RENDERABLE, True,
 		GLX_RENDER_TYPE, GLX_RGBA_BIT,
 		GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
@@ -307,17 +310,21 @@ findModesAgain:
 		None, None,
 		None, None,
 		None, None,
-		None, None
-	}; //this crashes if GLX_SAMPLES_ARB is set, but 1. thus we do it differently
+		None, None,
+		None, None,
+		None, None,
+		None
+	}; //this crashes if GLX_SAMPLES is set, but 1. thus we do it differently
+	int startIndex = 22;
 	if (!full) {
-		iAttributes[20] = GLX_DRAWABLE_TYPE;
-		iAttributes[21] = GLX_WINDOW_BIT;
+		iAttributes[startIndex++] = GLX_DRAWABLE_TYPE;
+		iAttributes[startIndex++] = GLX_WINDOW_BIT;
 	}
-        if (format.samplesPerPixel > 1) {
-		iAttributes[22] = GLX_SAMPLE_BUFFERS;
-		iAttributes[23] = GL_TRUE;
-		iAttributes[24] = GLX_SAMPLES;
-		iAttributes[25] = format.samplesPerPixel;
+    if (format.samplesPerPixel > 1) {
+		iAttributes[startIndex++] = GLX_SAMPLE_BUFFERS;
+		iAttributes[startIndex++] = GL_TRUE;
+		iAttributes[startIndex++] = GLX_SAMPLES;
+		iAttributes[startIndex++] = format.samplesPerPixel;
 	}
 
 	//get a matching framebuffer config
@@ -472,7 +479,9 @@ void GLWindow::swap() const
 void GLWindow::destroy()
 {
 	//free context
-	context->destroy();
+	if (context != nullptr) {
+		context->destroy();
+	}
 
 #if defined(WIN32) || defined(_WIN32)
 	//switch back to old display mode

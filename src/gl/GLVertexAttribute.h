@@ -23,6 +23,11 @@ class GLVertexAttribute : public GLVertexAttributeBase
 
 public:
 	GLVertexAttribute(std::shared_ptr<ContextBase> & context, GLVertexAttributeBase::AttributeRole role, GLenum usagePattern = GL_DYNAMIC_DRAW);
+	
+	/*!
+	Resize attribute and allocate memory.
+	*/
+	void resize(size_t nrOfElements);
 
     /*!
     Append single element to VBO data.
@@ -99,6 +104,13 @@ inline GLVertexAttribute<TYPE>::GLVertexAttribute(std::shared_ptr<ContextBase> &
 		throw GLVertexAttributeException("VertexAttribute() - failed to generate vertex buffer!");
 	}
 	valid = true;
+}
+
+template <typename TYPE>
+inline void GLVertexAttribute<TYPE>::resize(size_t nrOfElements)
+{
+	data.resize(nrOfElements);
+	changed = true;
 }
 
 template <typename TYPE>

@@ -223,7 +223,9 @@ void ESWindow::swap() const
 void ESWindow::destroy()
 {
 	//free context
-	context->destroy();
+	if (context != nullptr) {
+		context->destroy();
+	}
 	//free up surface and display
 	if (eglSurface != nullptr) {
 		eglDestroySurface(eglDisplay, eglSurface);

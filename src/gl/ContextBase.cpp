@@ -24,8 +24,10 @@ ContextBase::ContextBase()
 		m_ErrorMap[GL_INVALID_ENUM] = "Invalid enum";
 		m_ErrorMap[GL_INVALID_VALUE] = "Invalid value";
 		m_ErrorMap[GL_INVALID_OPERATION] = "Invalid operation";
+#ifdef USE_GL_DESKTOP
 		m_ErrorMap[GL_STACK_OVERFLOW] = "Stack overflow";
 		m_ErrorMap[GL_STACK_UNDERFLOW] = "Stack underflow";
+#endif
 		m_ErrorMap[GL_OUT_OF_MEMORY] = "Out of memory";
 		m_ErrorMap[GL_INVALID_FRAMEBUFFER_OPERATION] = "Invalid framebuffer operation";
 #ifdef GL_TABLE_TOO_LARGE

@@ -69,7 +69,7 @@ GLContext::GLContext(Display * display, Window & window, GLXFBConfig & fbConfig)
         X11OriginalHandler = XSetErrorHandler(X11ErrorHandler);
 		//create a GL >= 3.0 context
         //TODO: GLX_CONTEXT_DEBUG_BIT_ARB
-		int attribs[] = { GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, 0, 0};
+		int attribs[] = { GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, 0, None};
 		GLXContext gl3Context = glXCreateContextAttribs(display, fbConfig, nullptr, True, &attribs[0]);
         //reset error handler first
         XSetErrorHandler(X11OriginalHandler);
