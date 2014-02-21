@@ -27,20 +27,20 @@ OpenGL context base class. Derive from this to create system specific contexts, 
 class ContextBase
 {
 	static std::map<GLenum, std::string> m_ErrorMap; //!<Map holding human-readable string for opengl error codes.
-    static std::shared_ptr<std::ostream> m_Out; //!<Output stream the error messages will be output to. Default is std::cout.
-    static bool m_OutputErrors; //!<When set to true OpenGL errors are output to @sa m_Out. Default is off.
+	static std::shared_ptr<std::ostream> m_Out; //!<Output stream the error messages will be output to. Default is std::cout.
+	static bool m_OutputErrors; //!<When set to true OpenGL errors are output to @sa m_Out. Default is off.
 
-    /*
-    Set the output stream all OpenGL errors go to.
-    \param[in] out New output stream for OpenGL errors.
-    */
+	/*
+	Set the output stream all OpenGL errors go to.
+	\param[in] out New output stream for OpenGL errors.
+	*/
 	static void setErrorOutputStream(std::shared_ptr<std::ostream> out);
 
-    /*
-    Toggle OpenGL error output.
-    \param[in] enable Pass true to output OpenGL errors to m_Out.
-    */
-    static void setOutputErrors(bool enable);
+	/*
+	Toggle OpenGL error output.
+	\param[in] enable Pass true to output OpenGL errors to m_Out.
+	*/
+	static void setOutputErrors(bool enable);
 
 protected:
 	int versionMajor; //!<OpenGL version information.
@@ -60,7 +60,7 @@ protected:
 
 		Binding(void (GLAPIENTRYP * adressOfFuncPointer)(), const std::string & functionName) : adressOfFunctionPointer(adressOfFuncPointer), nameOfFunction(functionName) {	*adressOfFunctionPointer = nullptr;	}
 	};
-    std::vector<Binding> bindings; //!<Holds adresses of OpenGL functions and the names.
+	std::vector<Binding> bindings; //!<Holds adresses of OpenGL functions and the names.
 
 	/*!
 	Get function bindings for all OpenGL functions in \bindings.
@@ -136,7 +136,7 @@ public:
 	void (GLAPIENTRYP glFramebufferTexture2D)(GLenum target, GLenum attachmentPoint, GLenum textureTarget, GLuint textureId, GLint  level); 
 	void (GLAPIENTRYP glBlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 	GLenum (GLAPIENTRYP glCheckFramebufferStatus)(GLenum target);
-    void (GLAPIENTRYP glDiscardFramebuffer)(GLenum target, GLsizei numAttachments, const GLenum * attachments); //only on OpenGL ES (2.0)
+	void (GLAPIENTRYP glDiscardFramebuffer)(GLenum target, GLsizei numAttachments, const GLenum * attachments); //only on OpenGL ES (2.0)
 	//VBOs, PBOs
 	void (GLAPIENTRYP glGenBuffers)(GLsizei n, GLuint *ids);
 	void (GLAPIENTRYP glDeleteBuffers)(GLsizei n, const GLuint *ids);
@@ -158,7 +158,7 @@ public:
 	#ifdef USE_OPENGL_DESKTOP
 		void (GLAPIENTRYP glXSwapInterval)(Display *dpy, GLXDrawable drawable, int interval);
 		GLXContext (GLAPIENTRYP glXCreateContextAttribs)(Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
-    #endif
+	#endif
 #endif
 
 	/*!
@@ -213,19 +213,19 @@ public:
 	\param[in] error The OpenGL error code retrieved via a glGetError() call.
 	\return Returns the string representation of the error.
 	*/
-    static std::string glErrorToString(GLenum error);
+	static std::string glErrorToString(GLenum error);
 
-    /*
-    Check if an OpenGL is pending and prints it to @sa m_Out if @sa m_OutputErrors is set, then removes it from the error stack.
-    \return Returns true if an OpenGL error happened.
-    \note Use the macro @sa glErrorOccurred.
-    */
+	/*
+	Check if an OpenGL is pending and prints it to @sa m_Out if @sa m_OutputErrors is set, then removes it from the error stack.
+	\return Returns true if an OpenGL error happened.
+	\note Use the macro @sa glErrorOccurred.
+	*/
 	bool glErrorHappened(const std::string file, int line);
 
 #ifdef CHECK_OPENGL_ERRORS
-    #define glErrorOccurred() (glErrorHappened(__FILE__, __LINE__))
+	#define glErrorOccurred() (glErrorHappened(__FILE__, __LINE__))
 #else
-    #define glErrorOccurred() (false)
+	#define glErrorOccurred() (false)
 #endif
 
 #ifdef USE_OPENGL_ERROR_CALLBACK
@@ -235,5 +235,5 @@ public:
 	/*
 	Destructor calls \destroy by default.
 	*/
-    virtual ~ContextBase();
+	virtual ~ContextBase();
 };

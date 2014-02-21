@@ -12,7 +12,7 @@
 
 #if defined(WIN32) || defined(_WIN32)
 GLWindow::GLWindow(const int width, const int height, std::string title, const bool fullScreen, const Format & windowFormat, WNDPROC wndProc)
-    : WindowBase(width, height, title, fullScreen, windowFormat), hWND(nullptr), hDC(nullptr)
+	: WindowBase(width, height, title, fullScreen, windowFormat), hWND(nullptr), hDC(nullptr)
 {
 	HINSTANCE instance = GetModuleHandle(nullptr);
 	if (instance == NULL) {
@@ -24,8 +24,8 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 	windowClass.hIcon         = NULL; //LoadIcon(NULL, IDI_INFORMATION);
 	windowClass.lpszMenuName  = NULL;
 	windowClass.style		  = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;	// Redraws The Window For Any Movement / Resizing
-    windowClass.cbClsExtra    = 0;
-    windowClass.cbWndExtra    = 0;
+	windowClass.cbClsExtra    = 0;
+	windowClass.cbWndExtra    = 0;
 	windowClass.lpfnWndProc	  = (WNDPROC)wndProc;			// WindowProc Handles Messages
 	windowClass.hInstance	  = instance;				// Set The Instance
 	//If you want to have an icon, include one in the resources, the program will show the first one it can find
@@ -33,7 +33,7 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 	windowClass.hCursor		  = NULL; //LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
 	windowClass.lpszClassName = title.c_str();				// Sets The Applications Classname
 	if (RegisterClass(&windowClass) == 0) {
-        std::cout << "Registering window class failed!" << std::endl;
+		std::cout << "Registering window class failed!" << std::endl;
 		return;
 	}
 
@@ -56,7 +56,7 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 		dmScreenSettings.dmFields			= DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 			//fullscreen mode switch failed. run in windowed mode instead
-            std::cout << "Mode switch failed. Running in windowed mode instead." << std::endl;
+			std::cout << "Mode switch failed. Running in windowed mode instead." << std::endl;
 			full = false;
 		}
 		else {
@@ -73,8 +73,8 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 		AdjustWindowRect(&windowRect, windowStyle, false);
 	}
 
-    int multisamplingSupported = format.samplesPerPixel > 1 ? -1 : 0; //-1 = check for multisampling, 0 = not supported, 1 = supported, enable
-    //goto here to re-create the window again after checking for multisampling
+	int multisamplingSupported = format.samplesPerPixel > 1 ? -1 : 0; //-1 = check for multisampling, 0 = not supported, 1 = supported, enable
+	//goto here to re-create the window again after checking for multisampling
 createWindowAgain:
 
 	// Create The OpenGL Window
@@ -91,19 +91,19 @@ createWindowAgain:
 
 	if (hWND == nullptr) {
 		destroy();
-        std::cout << "Failed to create a window!" <<std::endl;
+		std::cout << "Failed to create a window!" <<std::endl;
 		return;
 	}
 
 	//get device context
-    hDC = GetDC(hWND);
+	hDC = GetDC(hWND);
 	if (hDC == nullptr) {
 		destroy();
-        std::cout << "Failed to get a device context!" << std::endl;
+		std::cout << "Failed to get a device context!" << std::endl;
 		return;
 	}
 
-    static int pfID = 0; //pixel format id.
+	static int pfID = 0; //pixel format id.
 	//Choose pixel format
 	PIXELFORMATDESCRIPTOR pfd = {
 		sizeof(PIXELFORMATDESCRIPTOR),           //size of structure
@@ -126,23 +126,23 @@ createWindowAgain:
 		0                                        //no damage mask
 	};
 
-    if (!fullScreen) {
-        pfd.dwFlags |= PFD_DRAW_TO_WINDOW;
-    }
+	if (!fullScreen) {
+		pfd.dwFlags |= PFD_DRAW_TO_WINDOW;
+	}
 
-    if (multisamplingSupported < 1) {
-        pfID = ChoosePixelFormat(hDC, &pfd);
-    }
+	if (multisamplingSupported < 1) {
+		pfID = ChoosePixelFormat(hDC, &pfd);
+	}
 
 	if (pfID == 0) {
 		destroy();
-        std::cout << "Failed to choose pixel format!" << std::endl;
+		std::cout << "Failed to choose pixel format!" << std::endl;
 		return;
 	}
 
 	if (!SetPixelFormat(hDC, pfID, &pfd)) {
 		destroy();
-        std::cout << "Failed to set pixel format!" << std::endl;
+		std::cout << "Failed to set pixel format!" << std::endl;
 		return;
 	}
 
@@ -150,51 +150,51 @@ createWindowAgain:
 	context = std::shared_ptr<GLContext>(new GLContext(hDC));
 	if (!context->isValid()) {
 		destroy();
-        std::cout << "Failed to create a render context!" << std::endl;
+		std::cout << "Failed to create a render context!" << std::endl;
 		return;
 	}
 
-    //now get multisampling information
-    //check if we need to check for multisampling support
-    if (multisamplingSupported < 0) {
-        //choose new multisampling pixel format
-	    int iAttributes[] = {
-            WGL_DRAW_TO_WINDOW_ARB, (full ? GL_FALSE : GL_TRUE),
-		    WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-		    WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-		    WGL_COLOR_BITS_ARB, format.redSize + format.greenSize + format.blueSize,
-		    WGL_ALPHA_BITS_ARB, format.alphaSize,
-		    WGL_DEPTH_BITS_ARB, format.depthSize,
-		    WGL_STENCIL_BITS_ARB, format.stencilSize,
-		    WGL_DOUBLE_BUFFER_ARB, (format.doubleBuffering ? GL_TRUE : GL_FALSE),
-		    0, 0,
-		    0, 0, 
+	//now get multisampling information
+	//check if we need to check for multisampling support
+	if (multisamplingSupported < 0) {
+		//choose new multisampling pixel format
+		int iAttributes[] = {
+			WGL_DRAW_TO_WINDOW_ARB, (full ? GL_FALSE : GL_TRUE),
+			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+			WGL_COLOR_BITS_ARB, format.redSize + format.greenSize + format.blueSize,
+			WGL_ALPHA_BITS_ARB, format.alphaSize,
+			WGL_DEPTH_BITS_ARB, format.depthSize,
+			WGL_STENCIL_BITS_ARB, format.stencilSize,
+			WGL_DOUBLE_BUFFER_ARB, (format.doubleBuffering ? GL_TRUE : GL_FALSE),
+			0, 0,
+			0, 0, 
 			0, 0
-        };
-        if (format.samplesPerPixel > 1) {
-            iAttributes[18] = WGL_SAMPLE_BUFFERS_ARB;
-            iAttributes[19] = GL_TRUE;
-		    iAttributes[20] = WGL_SAMPLES_ARB;
-            iAttributes[21] = format.samplesPerPixel;
-        }
+		};
+		if (format.samplesPerPixel > 1) {
+			iAttributes[18] = WGL_SAMPLE_BUFFERS_ARB;
+			iAttributes[19] = GL_TRUE;
+			iAttributes[20] = WGL_SAMPLES_ARB;
+			iAttributes[21] = format.samplesPerPixel;
+		}
 
-        //try to select a multisampling pixel format
-	    multisamplingSupported = context->wglChoosePixelFormat(hDC, (const int *)&iAttributes, nullptr, 1, &pfID, (UINT *)&iAttributes[23]);
-        if (multisamplingSupported && iAttributes[23] > 0) {
-            //destroy window again. we'll create a new one
-            destroy();
-            //now do the window creation procedure again
-            goto createWindowAgain;
-        }
+		//try to select a multisampling pixel format
+		multisamplingSupported = context->wglChoosePixelFormat(hDC, (const int *)&iAttributes, nullptr, 1, &pfID, (UINT *)&iAttributes[23]);
+		if (multisamplingSupported && iAttributes[23] > 0) {
+			//destroy window again. we'll create a new one
+			destroy();
+			//now do the window creation procedure again
+			goto createWindowAgain;
+		}
 		//else no multisampling
 		format.samplesPerPixel = 1;
-    }
+	}
 
-    if (fullScreen) {
-	    //hide cursor
-	    ShowCursor(false);
-    }
+	if (fullScreen) {
+		//hide cursor
+		ShowCursor(false);
+	}
 	//set up some standard OpenGL stuff
 	setup();
 }
@@ -232,7 +232,7 @@ GLWindow::GLWindow(const int width, const int height, std::string title, const b
 		std::cout << "GLX version 1.3 or higher needed!" << std::endl;
 		return;
 	}
-    else {
+	else {
 		std::cout << "GLX version is " << major << "." << minor << std::endl;
 	}
 
@@ -320,7 +320,7 @@ findModesAgain:
 		iAttributes[startIndex++] = GLX_DRAWABLE_TYPE;
 		iAttributes[startIndex++] = GLX_WINDOW_BIT;
 	}
-    if (format.samplesPerPixel > 1) {
+	if (format.samplesPerPixel > 1) {
 		iAttributes[startIndex++] = GLX_SAMPLE_BUFFERS;
 		iAttributes[startIndex++] = GL_TRUE;
 		iAttributes[startIndex++] = GLX_SAMPLES;
@@ -470,7 +470,7 @@ void GLWindow::setup()
 void GLWindow::swap() const
 {
 #if defined(WIN32) || defined(_WIN32)
-	if (hDC != nullptr)
+	if (hDC != nullptr) {
 		SwapBuffers(hDC);
 	}
 #elif defined(__linux__)
@@ -499,7 +499,7 @@ void GLWindow::destroy()
 		//release the DC we got for our window
 		ReleaseDC(hWND, hDC);
 		hDC = nullptr;
-        DestroyWindow(hWND);
+		DestroyWindow(hWND);
 		hWND = nullptr;
 	}
 	//unhide cursor
@@ -540,7 +540,7 @@ void GLWindow::setSwapInterval(int interval) const
 		context->wglSwapInterval(interval);
 	}
 #elif defined(__linux__)
-    if (context != nullptr && xWindow != 0 && context->glXSwapInterval != nullptr) {
+	if (context != nullptr && xWindow != 0 && context->glXSwapInterval != nullptr) {
 		context->glXSwapInterval(xDisplay, xWindow, interval);
 	}
 #endif
@@ -548,5 +548,5 @@ void GLWindow::setSwapInterval(int interval) const
 
 GLWindow::~GLWindow()
 {
-    destroy();
+	destroy();
 }

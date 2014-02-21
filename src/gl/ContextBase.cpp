@@ -447,14 +447,17 @@ std::string ContextBase::glErrorToString(GLenum error)
 
 bool ContextBase::glErrorHappened(const std::string file, int line)
 {
+    bool errorHappened = false;
 	GLenum error = GL_NO_ERROR;
     GLenum previousError = GL_NO_ERROR;
 	while ((error = glGetError()) != GL_NO_ERROR) {
         if (error != previousError && m_OutputErrors) {
 		    *m_Out << "OpenGL Error: " << glErrorToString(error) << " in " << file << ":" << line << std::endl;
+            errorHappened = true;
         }
         previousError = error;
 	}
+    return errorHappened;
 }
 
 void ContextBase::setErrorOutputStream(std::shared_ptr<std::ostream> out)

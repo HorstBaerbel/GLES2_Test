@@ -3,6 +3,13 @@
 
 #if defined(WIN32) || defined(_WIN32)
 	#include <Windows.h>
+	//Add defines missing in VS-provided default OpenGL headers
+	#ifndef GLAPIENTRY
+		#define GLAPIENTRY APIENTRY
+	#endif
+	#ifndef GLAPIENTRYP
+		#define GLAPIENTRYP GLAPIENTRY*
+	#endif
 #endif
 
 #ifdef USE_OPENGL_DESKTOP
@@ -15,15 +22,15 @@
 #endif
 
 #ifdef USE_OPENGL_GLX
-    #ifndef GLXBadContext
-        #define GLXBadContext 0
-    #endif
-    #ifndef GLXBadFBConfig
-        #define GLXBadFBConfig 9
-    #endif
-    #if !defined(GLXBadProfile)
-        #define GLXBadProfile 13
-    #endif
+	#ifndef GLXBadContext
+		#define GLXBadContext 0
+	#endif
+	#ifndef GLXBadFBConfig
+		#define GLXBadFBConfig 9
+	#endif
+	#if !defined(GLXBadProfile)
+		#define GLXBadProfile 13
+	#endif
 #endif
 
 #ifdef USE_OPENGL_ES
@@ -34,7 +41,7 @@
 	#define GL_BGRA 0x80E0
 	#define GL_BGR 0x80E1
 	#define GLAPIENTRY GL_APIENTRY
-	#define GLAPIENTRYP *
+	#define GLAPIENTRYP GLAPIENTRY*
 	#define GL_WRITE_ONLY GL_WRITE_ONLY_OES
 	#define GL_HALF_FLOAT 0x8D61
 #endif

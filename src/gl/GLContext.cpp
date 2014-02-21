@@ -3,9 +3,6 @@
 #include <iostream>
 
 
-int (*GLContext::X11OriginalHandler)(Display *, XErrorEvent *) = nullptr;
-
-
 #if defined(WIN32) || defined(_WIN32)
 GLContext::GLContext(HDC dc)
 	: hDC(nullptr), hRC(nullptr)
@@ -35,6 +32,8 @@ GLContext::GLContext(HDC dc)
 }
 
 #elif defined(__linux__)
+
+int (*GLContext::X11OriginalHandler)(Display *, XErrorEvent *) = nullptr;
 
 GLContext::GLContext(Display * display, Window & window, GLXFBConfig & fbConfig)
 	: xDisplay(nullptr), xWindow(0), context(nullptr), glxVersionMajor(1), glxVersionMinor(0)
