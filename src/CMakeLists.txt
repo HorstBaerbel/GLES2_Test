@@ -204,14 +204,10 @@ source_group("main" REGULAR_EXPRESSION ^[^\\/]*$) #dunno why this doesn't work
 #-------------------------------------------------------------------------------
 #define libraries and directories
 if(DEFINED BCMHOST)
-#    link_directories(
-#        ${CMAKE_CURRENT_BINARY_DIR}
-#        "/opt/vc/lib"
-#    )
     LIST(APPEND TARGET_LIBRARIES
         /opt/vc/lib/libbcm_host.so
-        EGL
-        ${OPENGLES2_LIBRARIES}
+        /opt/vc/lib/libGLESv2.so
+        /opt/vc/lib/libEGL.so
     )
 else()
     if(MSVC)

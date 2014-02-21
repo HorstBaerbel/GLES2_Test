@@ -38,10 +38,15 @@ ESWindow::ESWindow(const int width, const int height, std::string title, const b
 	src_rect.y = 0;
 	src_rect.width = w << 16;
 	src_rect.height = h << 16;
+	
+	VC_DISPMANX_ALPHA_T dispman_alpha;
+	dispman_alpha.flags = DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS;
+	dispman_alpha.opacity = 0xff;
+	dispman_alpha.mask = 0; 
 
 	dispman_display = vc_dispmanx_display_open(0 /* LCD */);
 	dispman_update = vc_dispmanx_update_start(0);
-	dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display, 0, &dst_rect, 0, &src_rect, DISPMANX_PROTECTION_NONE, 0, 0, DISPMANX_NO_ROTATE);
+	dispman_element = vc_dispmanx_element_add(dispman_update, dispman_display, 0, &dst_rect, 0, &src_rect, DISPMANX_PROTECTION_NONE, dispman_alpha, 0, DISPMANX_NO_ROTATE);
 
 	nativeWindow.element = dispman_element;
 	nativeWindow.width = width;
