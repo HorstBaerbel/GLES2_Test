@@ -14,18 +14,18 @@ int main(int argc, char **argv)
 		std::cout << "Setup failed!" << std::endl;
 		return -1;
 	}
-    //retrieve display hande from window
-    DisplayHandle display = window->getDisplayHandle();
-
-	XEvent event;
-	bool done = false;
 
 	//wait for events
+	bool done = false;
 	while (!done) {
-        //render scene
-        interactive();
+		//render scene
+		interactive();
+#ifdef USE_OPENGL_GLX
+		//retrieve display hande from window
+		DisplayHandle display = window->getDisplayHandle();
 		//handle the events in the queue
 		while (XPending(display) > 0) {
+			XEvent event;
 			XNextEvent(display, &event);
 			switch (event.type) {
 				case Expose:
@@ -64,6 +64,7 @@ int main(int argc, char **argv)
 					break;
 			}
 		}
+#endif
 		//usleep(1000);
 	}
 
