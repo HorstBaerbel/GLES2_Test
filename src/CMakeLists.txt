@@ -3,11 +3,21 @@ cmake_minimum_required(VERSION 2.6)
 project(GLES2_test)
 
 #-------------------------------------------------------------------------------
+#set up build directories
+set(dir ${CMAKE_CURRENT_SOURCE_DIR}/../build)
+set(EXECUTABLE_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
+set(LIBRARY_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
+
+#-------------------------------------------------------------------------------
 #add local find scripts to CMAKE path
 LIST(APPEND CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/CMake/Utils
     ${CMAKE_CURRENT_SOURCE_DIR}/CMake/Packages
 )
+
+#-------------------------------------------------------------------------------
+#add our custom image library
+add_subdirectory(image)
 
 #-------------------------------------------------------------------------------
 #set up OpenGL system variable
@@ -198,6 +208,7 @@ endif()
 source_group("gl" REGULAR_EXPRESSION gl\\/.*)
 source_group("components" REGULAR_EXPRESSION components\\/.*)
 source_group("math" REGULAR_EXPRESSION math\\/.*)
+source_group("image" REGULAR_EXPRESSION image\\/.*)
 source_group("model" REGULAR_EXPRESSION model\\/.*)
 source_group("main" REGULAR_EXPRESSION ^[^\\/]*$) #dunno why this doesn't work
 
@@ -231,11 +242,9 @@ else()
     endif()
 endif()
 
-#-------------------------------------------------------------------------------
-#set up build directories
-set(dir ${CMAKE_CURRENT_SOURCE_DIR}/../build)
-set(EXECUTABLE_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
-set(LIBRARY_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
+LIST(APPEND TARGET_LIBRARIES
+    Image
+)
 
 #-------------------------------------------------------------------------------
 #define target

@@ -22,8 +22,8 @@ class GLVertexBuffer : public IChangeableObject, public IRenderableObject, publi
 	std::map<GLVertexAttributeBase::AttributeRole, std::shared_ptr<GLVertexAttributeBase>> attributes; //!<Map from vertex attribute role to attribute data.
 	std::shared_ptr<GLVertexAttributeMap> attributeMap; //!<Map from vertex attribute role to attribute index (for rendering).
 	std::shared_ptr<GLVertexAttributeBase> indices; //!<Mesh indices if any.
-	GLsizei nrOfPrimitives; //!<Number of primitives rendered in \primitiveMode.
-	GLsizei nrOfIndices; //!<Number of indices rendered.
+	size_t nrOfPrimitives; //!<Number of primitives rendered in \primitiveMode.
+	size_t nrOfIndices; //!<Number of indices rendered.
 	GLenum primitiveMode; //!<Primitive mode used for rendering.
 	GLint nrOfVerticesPerPatch; //!<Number of vertices per patch. Only if tesselation is enabled (\primitiveMode is GL_PATCH).
 	GLuint glArrayId; //!<OpenGL identifier for VAO.
@@ -48,7 +48,7 @@ public:
 	Return number of attributes currently in vertex buffer.
 	\return Returns the number of attributes currently in vertex buffer.
 	*/
-	GLuint getNrOfAttributes() const;
+	size_t getNrOfAttributes() const;
 
 	/*!
 	Set a new attribute map. Use this when e.h. using a new shader with the same vertex buffer.
@@ -90,13 +90,13 @@ public:
 	The number of primitives that will be rendered regarding to the current number of vertices or indices and the render mode.
 	\return The number of primitves that will be rendered with the current settings.
 	*/
-	GLsizei getNrOfPrimitivesRendered() const;
+	size_t getNrOfPrimitivesRendered() const;
 
 	/*!
 	The number of indices that will be rendered regarding to the current number render mode.
 	\return The number of indices that will be rendered with the current settings.
 	*/
-	GLsizei getNrOfIndicesRendered() const;
+	size_t getNrOfIndicesRendered() const;
 
 	bool prepareRender(std::shared_ptr<ParameterBase> parameter = nullptr) override;
 	bool render(std::shared_ptr<ParameterBase> parameter = nullptr) override;

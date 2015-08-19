@@ -47,7 +47,7 @@ void GLVertexBuffer::setIndices(std::shared_ptr<GLVertexAttributeBase> newIndice
 	changed = true;
 }
 
-GLuint GLVertexBuffer::getNrOfAttributes() const
+size_t GLVertexBuffer::getNrOfAttributes() const
 {
 	return attributes.size();
 }
@@ -82,7 +82,7 @@ void GLVertexBuffer::setVerticesPerPatch(GLint verticesPerPatch)
 	nrOfPrimitives = getNrOfPrimitivesRendered();
 }
 
-GLsizei GLVertexBuffer::getNrOfIndicesRendered() const
+size_t GLVertexBuffer::getNrOfIndicesRendered() const
 {
 	if (indices) {
 		//we have an indexed primitive, use indices
@@ -108,9 +108,9 @@ GLsizei GLVertexBuffer::getNrOfIndicesRendered() const
 	return 0;
 }
 
-GLsizei GLVertexBuffer::getNrOfPrimitivesRendered() const
+size_t GLVertexBuffer::getNrOfPrimitivesRendered() const
 {
-	GLsizei count;
+	size_t count;
 	if (indices) {
 		//we have an indexed primitive, use indices
 		count = indices->getElementCount();
@@ -247,10 +247,10 @@ bool GLVertexBuffer::render(std::shared_ptr<ParameterBase> parameter)
 	glEnableClientState(GL_VERTEX_ARRAY);
 #endif
 	if (indices) {
-		glDrawElements(primitiveMode, nrOfPrimitives, indices->getElementGLType(), nullptr);
+		glDrawElements(primitiveMode, (GLsizei)nrOfPrimitives, indices->getElementGLType(), nullptr);
 	}
 	else {
-		glContext->glDrawArrays(primitiveMode, 0, nrOfIndices);
+		glContext->glDrawArrays(primitiveMode, 0, (GLsizei)nrOfIndices);
 	}
 	return true;
 }
